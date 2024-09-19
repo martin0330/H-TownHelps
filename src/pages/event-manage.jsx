@@ -86,164 +86,170 @@ const EventManage = () => {
     };
 
     return (
-        <div className=' w-full h-full flex items-center justify-center'>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className='mb-4'>
-                    <label
-                        className='block text-gray-700 font-medium mb-2'
-                        htmlFor='name'
-                    >
-                        Event Name
-                    </label>
-                    <input
-                        className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                        id='name'
-                        type='text'
-                        {...register('name', {
-                            required: true,
-                            maxLength: {
-                                value: 100,
-                                message: 'Name cannot exceed 50 characters',
-                            },
-                        })}
-                    />
-                    {errors.name && (
-                        <p className='text-red-500 text-xs italic'>
-                            Name is required
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <label
-                        className='block text-gray-700 font-medium mb-2'
-                        htmlFor='email'
-                    >
-                        Event Description
-                    </label>
-                    <textarea
-                        className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                        id='eventDesc'
-                        rows={4}
-                        cols={50}
-                        {...register('eventDesc', { required: true })}
-                    />
-                    {errors.eventDesc && (
-                        <p className='text-red-500 text-xs italic'>
-                            Description is required
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <label
-                        className='block text-gray-700 font-medium mb-2'
-                        htmlFor='email'
-                    >
-                        Location
-                    </label>
-                    <textarea
-                        className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                        id='location'
-                        rows={2}
-                        cols={50}
-                        {...register('location', { required: true })}
-                    />
-                    {errors.location && (
-                        <p className='text-red-500 text-xs italic'>
-                            Location is required.
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <label
-                        className='block text-gray-700 font-medium mb-2'
-                        htmlFor='requiredSkills'
-                    >
-                        Required Skills
-                    </label>
-                    <select
-                        className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                        id='requiredSkills'
-                        multiple
-                        {...register('requiredSkills', { required: true })}
-                    >
-                        {skillsOptions.map((skill) => (
-                            <option key={skill.value} value={skill.value}>
-                                {skill.label}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.requiredSkills && (
-                        <p className='text-red-500 text-xs italic'>
-                            Please select at least one skill.
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <label
-                        className='block text-gray-700 font-medium mb-2'
-                        htmlFor='urgency'
-                    >
-                        Urgency
-                    </label>
-                    <select
-                        className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                        id='urgency'
-                        multiple
-                        {...register('urgency', { required: true })}
-                    >
-                        <option value='Urgent'> Urgent </option>
-                        <option value='High'> High </option>
-                        <option value='Medium'> Medium </option>
-                        <option value='Low'> Low </option>
-                    </select>
-                    {errors.urgency && (
-                        <p className='text-red-500 text-xs italic'>
-                            Please select at least one skill.
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <label className='block text-gray-700 font-medium mb-2'>
-                        Event Date
-                    </label>
-                    <DatePicker
-                        selected={null}
-                        onChange={handleDateChange}
-                        selectsStart
-                        startDate={null}
-                        endDate={null}
-                        inline
-                        className='w-full border border-gray-400 rounded py-2 px-3 text-gray-700'
-                    />
-                    <div className='mt-2'>
-                        {selectedDates.map((date, index) => (
-                            <div key={index} className='flex items-center mb-1'>
-                                <span className='text-gray-700'>
-                                    {date.toDateString()}
-                                </span>
-                                <button
-                                    type='button'
-                                    onClick={() => handleDateRemove(date)}
-                                    className='ml-2 text-red-500 hover:text-red-700'
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        ))}
+        <div className=' w-full h-full flex flex-col items-center justify-center'>
+            <div className=' text-4xl pb-10 font-bold'> Event Management </div>
+            <div>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className='mb-4'>
+                        <label
+                            className='block text-gray-700 font-medium mb-2'
+                            htmlFor='name'
+                        >
+                            Event Name
+                        </label>
+                        <input
+                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
+                            id='name'
+                            type='text'
+                            {...register('name', {
+                                required: true,
+                                maxLength: {
+                                    value: 100,
+                                    message: 'Name cannot exceed 50 characters',
+                                },
+                            })}
+                        />
+                        {errors.name && (
+                            <p className='text-red-500 text-xs italic'>
+                                Name is required
+                            </p>
+                        )}
                     </div>
-                    {errors.availability && (
-                        <p className='text-red-500 text-xs italic'>
-                            This field is required
-                        </p>
-                    )}
-                </div>
-                <button
-                    className='bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-                    type='submit'
-                >
-                    Submit
-                </button>
-            </form>
+                    <div className='mb-4'>
+                        <label
+                            className='block text-gray-700 font-medium mb-2'
+                            htmlFor='email'
+                        >
+                            Event Description
+                        </label>
+                        <textarea
+                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
+                            id='eventDesc'
+                            rows={4}
+                            cols={50}
+                            {...register('eventDesc', { required: true })}
+                        />
+                        {errors.eventDesc && (
+                            <p className='text-red-500 text-xs italic'>
+                                Description is required
+                            </p>
+                        )}
+                    </div>
+                    <div className='mb-4'>
+                        <label
+                            className='block text-gray-700 font-medium mb-2'
+                            htmlFor='email'
+                        >
+                            Location
+                        </label>
+                        <textarea
+                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
+                            id='location'
+                            rows={2}
+                            cols={50}
+                            {...register('location', { required: true })}
+                        />
+                        {errors.location && (
+                            <p className='text-red-500 text-xs italic'>
+                                Location is required.
+                            </p>
+                        )}
+                    </div>
+                    <div className='mb-4'>
+                        <label
+                            className='block text-gray-700 font-medium mb-2'
+                            htmlFor='requiredSkills'
+                        >
+                            Required Skills
+                        </label>
+                        <select
+                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
+                            id='requiredSkills'
+                            multiple
+                            {...register('requiredSkills', { required: true })}
+                        >
+                            {skillsOptions.map((skill) => (
+                                <option key={skill.value} value={skill.value}>
+                                    {skill.label}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.requiredSkills && (
+                            <p className='text-red-500 text-xs italic'>
+                                Please select at least one skill.
+                            </p>
+                        )}
+                    </div>
+                    <div className='mb-4'>
+                        <label
+                            className='block text-gray-700 font-medium mb-2'
+                            htmlFor='urgency'
+                        >
+                            Urgency
+                        </label>
+                        <select
+                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
+                            id='urgency'
+                            multiple
+                            {...register('urgency', { required: true })}
+                        >
+                            <option value='Urgent'> Urgent </option>
+                            <option value='High'> High </option>
+                            <option value='Medium'> Medium </option>
+                            <option value='Low'> Low </option>
+                        </select>
+                        {errors.urgency && (
+                            <p className='text-red-500 text-xs italic'>
+                                Please select at least one skill.
+                            </p>
+                        )}
+                    </div>
+                    <div className='mb-4'>
+                        <label className='block text-gray-700 font-medium mb-2'>
+                            Event Date
+                        </label>
+                        <DatePicker
+                            selected={null}
+                            onChange={handleDateChange}
+                            selectsStart
+                            startDate={null}
+                            endDate={null}
+                            inline
+                            className='w-full border border-gray-400 rounded py-2 px-3 text-gray-700'
+                        />
+                        <div className='mt-2'>
+                            {selectedDates.map((date, index) => (
+                                <div
+                                    key={index}
+                                    className='flex items-center mb-1'
+                                >
+                                    <span className='text-gray-700'>
+                                        {date.toDateString()}
+                                    </span>
+                                    <button
+                                        type='button'
+                                        onClick={() => handleDateRemove(date)}
+                                        className='ml-2 text-red-500 hover:text-red-700'
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        {errors.availability && (
+                            <p className='text-red-500 text-xs italic'>
+                                This field is required
+                            </p>
+                        )}
+                    </div>
+                    <button
+                        className='bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+                        type='submit'
+                    >
+                        Submit
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };
