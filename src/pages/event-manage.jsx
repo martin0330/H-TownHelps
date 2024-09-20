@@ -17,45 +17,31 @@ const skillsOptions = [
     { value: 'Engineering', label: 'Engineering' },
     { value: 'Finance', label: 'Finance' },
     { value: 'Food Service & Events', label: 'Food Service & Events' },
-    {
-        value: 'For Profit & Nonprofit Development',
-        label: 'For Profit & Nonprofit Development',
-    },
+    { value: 'For Profit & Nonprofit Development', label: 'For Profit & Nonprofit Development' },
     { value: 'HR', label: 'HR' },
-    {
-        value: 'Healthcare & Social Services',
-        label: 'Healthcare & Social Services',
-    },
+    { value: 'Healthcare & Social Services', label: 'Healthcare & Social Services' },
     { value: 'Hobbies & Crafts', label: 'Hobbies & Crafts' },
     { value: 'Housing & Facilities', label: 'Housing & Facilities' },
-    {
-        value: 'IT Infrastructure & Software',
-        label: 'IT Infrastructure & Software',
-    },
-    {
-        value: 'Interactive & Web Development',
-        label: 'Interactive & Web Development',
-    },
+    { value: 'IT Infrastructure & Software', label: 'IT Infrastructure & Software' },
+    { value: 'Interactive & Web Development', label: 'Interactive & Web Development' },
     { value: 'Interpersonal', label: 'Interpersonal' },
     { value: 'Language & Culture', label: 'Language & Culture' },
     { value: 'Legal & Advocacy', label: 'Legal & Advocacy' },
-    {
-        value: 'Logistics, Supply Chain & Transportation',
-        label: 'Logistics, Supply Chain & Transportation',
-    },
-    {
-        value: 'Marketing & Communications',
-        label: 'Marketing & Communications',
-    },
+    { value: 'Logistics, Supply Chain & Transportation', label: 'Logistics, Supply Chain & Transportation' },
+    { value: 'Marketing & Communications', label: 'Marketing & Communications' },
     { value: 'Music', label: 'Music' },
     { value: 'Performing Arts', label: 'Performing Arts' },
     { value: 'Sports & Recreation', label: 'Sports & Recreation' },
-    {
-        value: 'Strategy Development & Business Planning',
-        label: 'Strategy Development & Business Planning',
-    },
-    { value: 'Trades', label: 'Trades' },
+    { value: 'Strategy Development & Business Planning', label: 'Strategy Development & Business Planning' },
+    { value: 'Trades', label: 'Trades' }
 ];
+
+const urgencyOptions = [
+    { value: 'Urgent', label: 'Urgent'},
+    { value: 'High', label: 'High'},
+    { value: 'Medium', label: 'Medium'},
+    { value: 'Low', label: 'Low'}
+]
 
 const EventManage = () => {
     const {
@@ -155,54 +141,30 @@ const EventManage = () => {
                             </p>
                         )}
                     </div>
-                    <div className='mb-4'>
-                        <label
-                            className='block text-gray-700 font-medium mb-2'
-                            htmlFor='requiredSkills'
-                        >
-                            Required Skills
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2">
+                            Skills
                         </label>
-                        <select
-                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                            id='requiredSkills'
-                            multiple
-                            {...register('requiredSkills', { required: true })}
-                        >
-                            {skillsOptions.map((skill) => (
-                                <option key={skill.value} value={skill.value}>
-                                    {skill.label}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.requiredSkills && (
-                            <p className='text-red-500 text-xs italic'>
-                                Please select at least one skill.
-                            </p>
-                        )}
+                        <Select
+                            name="skills"
+                            options={skillsOptions}
+                            isMulti
+                            className="w-full"
+                            onChange={(options) => setValue('skills', options.map(option => option.value))}
+                        />
+                        {errors.skills && <p className="text-red-500 text-xs italic">This field is required</p>}
                     </div>
-                    <div className='mb-4'>
-                        <label
-                            className='block text-gray-700 font-medium mb-2'
-                            htmlFor='urgency'
-                        >
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2">
                             Urgency
                         </label>
-                        <select
-                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                            id='urgency'
-                            multiple
-                            {...register('urgency', { required: true })}
-                        >
-                            <option value='Urgent'> Urgent </option>
-                            <option value='High'> High </option>
-                            <option value='Medium'> Medium </option>
-                            <option value='Low'> Low </option>
-                        </select>
-                        {errors.urgency && (
-                            <p className='text-red-500 text-xs italic'>
-                                Please select at least one skill.
-                            </p>
-                        )}
+                        <Select
+                            name="urgency"
+                            options={urgencyOptions}
+                            className="w-full"
+                            onChange={(option) => setValue('urgency', option.value)}
+                        />
+                        {errors.urgency && <p className="text-red-500 text-xs italic">This field is required</p>}
                     </div>
                     <div className='mb-4'>
                         <label className='block text-gray-700 font-medium mb-2'>
