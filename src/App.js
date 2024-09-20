@@ -6,6 +6,7 @@ function App() {
       <UserProfile />
     </div>
   );
-}
+};
 
 export default App;
+
