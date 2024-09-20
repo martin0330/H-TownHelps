@@ -1,11 +1,36 @@
-import UserProfile from './pages/user-profile';
-import EventManage from './pages/event-manage';
+import { Outlet, Link } from "react-router-dom";
 
 function App() {
   return(
-    <div className='App'>
-      <EventManage />
-    </div>
+    <>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Login Page</Link>
+          </li>
+          <li>
+            <Link to="/registration">Registration Page</Link>
+          </li>
+          <li>
+            <Link to="/userprofile">User Profile Page</Link>
+          </li>
+          <li>
+            <Link to="/eventmanage">Event Management Page</Link>
+          </li>
+          <li>
+            <Link to="/volunteermatch">Volunteer Matching Page</Link>
+          </li>
+          <li>
+            <Link to="/notifications">Notifications Page</Link>
+          </li>
+          <li>
+            <Link to="/volunteerhist">Volunteer History Page</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Outlet />
+    </>
   );
 };
 
