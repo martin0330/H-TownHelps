@@ -168,10 +168,11 @@ const UserProfile = () => {
             </div>
 
             <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-gray-700 font-medium mb-2" id="state-select">
                     State
                 </label>
                 <Select
+                    aria-labelledby="state-select"
                     name="state"
                     options={states}
                     className="w-full"
@@ -195,7 +196,7 @@ const UserProfile = () => {
             </div>
 
             <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-gray-700 font-medium mb-2" id="skills-label">
                     Skills
                 </label>
                 <Select
@@ -203,6 +204,7 @@ const UserProfile = () => {
                     options={skillsOptions}
                     isMulti
                     className="w-full"
+                    aria-labelledby="skills-label"
                     onChange={(options) => setValue('skills', options.map(option => option.value))}
                 />
                 {errors.skills && <p className="text-red-500 text-xs italic">This field is required</p>}
@@ -221,7 +223,7 @@ const UserProfile = () => {
             </div>
 
             <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label className="block text-gray-700 font-medium mb-2" id = "availability-label">
                         Availability
                     </label>
                     <DatePicker
@@ -232,6 +234,8 @@ const UserProfile = () => {
                         endDate={null}
                         inline
                         className="w-full border border-gray-400 rounded py-2 px-3 text-gray-700"
+                        aria-labelledby="availability-label"
+                        placeholderText="Select dates"
                     />
                     <div className="mt-2">
                         {selectedDates.map((date, index) => (
