@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { Outlet, Link } from "react-router-dom";
 const Login = () => {
     const {
         register,
@@ -66,15 +67,9 @@ const Login = () => {
             </div>
             <div className="mb-4 text-blue-500 font-medium"
             >
-  <a 
-  href="https://www.youtube.com/"
-  target ="_blank"
-  area-label="Sign up and create a new account with us!"
-  
-  > 
-    Create a new account!
-    
-    </a>
+  <li>
+            <Link to="/registration">Sign up here!</Link>
+          </li>
 </div>
             </center>
             
