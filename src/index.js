@@ -10,6 +10,7 @@ import VolunteerMatch from './pages/volunteer-match';
 import NotificationSys from './pages/notification-sys';
 import VolunteerHist from './pages/volunteer-hist';
 import NotFound from './pages/NotFound';
+import MainPage from './pages/main-page'; // Import the MainPage component
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -17,8 +18,9 @@ root.render(
     <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
-        <Route index element={<Login />} />
+        <Route index element={<Login />} />  {/* Login as the index page */}
         <Route path="registration" element={<Registration />} />
+        <Route path="main" element={<MainPage />} />  {/* Add the MainPage route */}
         <Route path="userprofile" element={<UserProfile />} />
         <Route path="eventmanage" element={<EventManage />} />
         <Route path="volunteermatch" element={<VolunteerMatch />} />
