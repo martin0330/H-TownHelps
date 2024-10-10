@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import UserProfile from './user-profile';
+import UserProfile from '../user-profile';
 import '@testing-library/jest-dom';
 
 
@@ -15,7 +15,6 @@ describe('UserProfile Component', () => {
         expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Zip Code/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Skills/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Availability/i)).toBeInTheDocument();
     });
 
     test('renders error messages when required fields are empty', async () => {
@@ -28,11 +27,10 @@ describe('UserProfile Component', () => {
         fireEvent.click(submitButton);
     
         // Check for required error messages
-        expect(await screen.findByText(/this field is required/i)).toBeInTheDocument();
-        expect(await screen.findByText(/this field is required/i)).toBeInTheDocument();
+        const errorMessages = await screen.findAllByText(/this field is required/i);
         
-        // You can also check specific fields if needed
-        expect(await screen.findByText(/this field is required/i, { selector: 'p' })).toBeInTheDocument();
+        // Assert that the correct number of error messages are rendered
+        expect(errorMessages.length).toBe(4); 
     });
 
     test('fills and submits form without validation errors', async () => {

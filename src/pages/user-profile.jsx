@@ -90,17 +90,27 @@ const skillsOptions = [
 ];
 
 const UserProfile = () => {
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({criteriaMode: "all"});
     const [selectedDates, setSelectedDates] = React.useState([]);
 
     const onSubmit = (data) => {
         data.skills = watch('skills');
         data.availability = selectedDates;
+
+        if (selectedDates.length === 0) {
+            errors.availability = { message: "This field is required" };
+            return;
+        }
+
         console.log(data);
+
+
     };
 
     const handleDateChange = (date) => {
-        setSelectedDates([...selectedDates, date]);
+        if (date) {
+            setSelectedDates([...selectedDates, date]);
+        }
     };
 
     const handleDateRemove = (dateToRemove) => {
@@ -110,7 +120,7 @@ const UserProfile = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-3xl bg-white p-8 rounded shadow-md">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-3xl bg-white p-8 rounded shadow-md">
 
             <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2" htmlFor="fullName">
@@ -223,36 +233,39 @@ const UserProfile = () => {
             </div>
 
             <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2" id = "availability-label">
-                        Availability
-                    </label>
-                    <DatePicker
-                        selected={null}
-                        onChange={handleDateChange}
-                        selectsStart
-                        startDate={null}
-                        endDate={null}
-                        inline
-                        className="w-full border border-gray-400 rounded py-2 px-3 text-gray-700"
-                        aria-labelledby="availability-label"
-                        placeholderText="Select dates"
-                    />
-                    <div className="mt-2">
-                        {selectedDates.map((date, index) => (
-                            <div key={index} className="flex items-center mb-1">
-                                <span className="text-gray-700">{date.toDateString()}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleDateRemove(date)}
-                                    className="ml-2 text-red-500 hover:text-red-700"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                    {errors.availability && <p className="text-red-500 text-xs italic">This field is required</p>}
+                <label className="block text-gray-700 font-medium mb-2" htmlFor="availability">
+                    Availability
+                </label>
+                <DatePicker
+                    id="availability" // Ensure the label is linked to the input
+                    selected={null}
+                    onChange={handleDateChange}
+                    selectsStart
+                    startDate={null}
+                    endDate={null}
+                    inline
+                    role="combobox" // Add accessible role
+                    aria-labelledby="availability-label" // Ensure the correct label association
+                    className="w-full border border-gray-400 rounded py-2 px-3 text-gray-700"
+                    placeholderText="Select dates"
+                />
+                <div className="mt-2">
+                    {selectedDates.map((date, index) => (
+                        <div key={index} className="flex items-center mb-1">
+                            <span className="text-gray-700">{date.toDateString()}</span>
+                            <button
+                                type="button"
+                                onClick={() => handleDateRemove(date)}
+                                className="ml-2 text-red-500 hover:text-red-700"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
                 </div>
+                {errors.availability && <p className="text-red-500 text-xs italic">{errors.availability.message}</p>}
+            </div>
+
 
             <button
     className="!bg-indigo-500 hover:!bg-indigo-700 !text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline"
