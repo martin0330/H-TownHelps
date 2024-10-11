@@ -1,9 +1,9 @@
-require('dotenv').config(); // Make sure this is at the top
+require('dotenv').config({ path: '../../.env' });
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors'); // Import cors
-const register = require('./api/register.js'); // Adjust if needed
+const register = require('./api/register.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,7 +17,7 @@ app.use(express.json());
 // Connect to MongoDB
 mongoose
     .connect(
-        'mongodb+srv://pierrejevillavicencio:XF2ibGrAOpcUqhTq@cluster0.8rdek.mongodb.net/',
+        process.env.REACT_APP_ATLAS_URI,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true,

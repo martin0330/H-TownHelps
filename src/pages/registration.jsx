@@ -51,7 +51,7 @@ const Registration = () => {
                     <h2>Register to Volunteer!</h2>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <label
-                            htmlFor='first'
+                            htmlFor='firstName'
                             className='block text-gray-700 font-medium mb-2'
                         >
                             First Name:
@@ -61,12 +61,12 @@ const Registration = () => {
                             type='text'
                             id='first'
                             name='first'
-                            {...register('first')}
+                            {...register('firstName')}
                             required
                         />
 
                         <label
-                            htmlFor='last'
+                            htmlFor='lastName'
                             className='block text-gray-700 font-medium mb-2'
                         >
                             Last Name:
@@ -76,7 +76,7 @@ const Registration = () => {
                             type='text'
                             id='last'
                             name='last'
-                            {...register('last')}
+                            {...register('lastName')}
                             required
                         />
 
@@ -158,7 +158,11 @@ const Registration = () => {
                             Registration successful!
                         </div>
                     )}
-                    {error && <div className='text-red-500'>{errorText}</div>}
+                    {error && (
+                        <div className='mt-4 p-4 border border-red-500 bg-red-100 text-red-700 rounded'>
+                            <strong>Error:</strong> {errorText}
+                        </div>
+                    )}
                 </div>
             </center>
         </div>
