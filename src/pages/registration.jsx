@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate, Link } from "react-router-dom";
 
 const Registration = () => {
     const { register, handleSubmit } = useForm();
@@ -7,6 +8,7 @@ const Registration = () => {
     const [error, setError] = useState(false);
     const [errorText, setErrorText] = useState('');
     const [signedUp, setSignedUp] = useState(false);
+    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         console.log(data);
@@ -36,7 +38,7 @@ const Registration = () => {
             console.log(result);
             setSignedUp(true);
             setError(false);
-            // You might want to redirect or show a success message here
+            navigate("/");
         } catch (err) {
             console.error(err);
             setError(true);

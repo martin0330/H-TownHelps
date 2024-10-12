@@ -2,8 +2,9 @@ require('dotenv').config({ path: '../../.env' });
 
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Import cors
+const cors = require('cors');
 const register = require('./api/register.js');
+const signin = require('./api/signin.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ mongoose
 
 // API Routes
 app.use('/api/register', register);
+app.use('/api/signin', signin);
 
 // Start server
 app.listen(PORT, () => {
