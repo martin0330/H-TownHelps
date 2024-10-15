@@ -12,9 +12,11 @@ import VolunteerHist from './pages/volunteer-hist';
 import NotFound from './pages/NotFound';
 import MainPage from './pages/main-page'; // Import the MainPage component
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from './components/authContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+    <AuthProvider>
     <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
@@ -30,4 +32,5 @@ root.render(
       </Route>
     </Routes>
   </BrowserRouter>
+  </AuthProvider>
 );

@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const register = require('./api/register.js');
 const signin = require('./api/signin.js');
+const profile = require('./api/profile.js');
+const autofillProfile = require('./api/autofillProfile.js')
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +32,8 @@ mongoose
 // API Routes
 app.use('/api/register', register);
 app.use('/api/signin', signin);
+app.use('/api/profile', profile);
+app.use('/api/autofillProfile', autofillProfile);
 
 // Start server
 app.listen(PORT, () => {

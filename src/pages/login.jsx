@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from '../components/authContext';
 
 const Login = () => {
     const {
@@ -8,6 +9,8 @@ const Login = () => {
         handleSubmit,
         formState: { errors },
     } = useForm();
+
+    const { login } = useAuth();
     
     const [error, setError] = useState(false);
     const [errorText, setErrorText] = useState('');
@@ -15,7 +18,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const SignIn = async (data) => {
-        const { email, password } = data;
+        const { email } = data;
         try {
             const response = await fetch('http://localhost:5000/api/signin', {
                 method: 'POST',
@@ -37,6 +40,7 @@ const Login = () => {
             const result = await response.json();
             console.log(result);
             setError(false);
+            login({ userEmail: email });
             navigate("/main");
         } catch (err) {
             console.error(err);
