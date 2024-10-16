@@ -13,7 +13,7 @@ function MainPage() {
             <Link to="/eventmanage">Manage Events</Link>
           </li>
           <li>
-            <Link to="/volunteermatch">Volunteer Matching</Link>
+            <Link to="/volunteer-match">Volunteer Matching</Link>
           </li>
           <li>
             <Link to="/notifications">View Notifications</Link>

@@ -6,7 +6,8 @@ const cors = require('cors');
 const register = require('./api/register.js');
 const signin = require('./api/signin.js');
 const profile = require('./api/profile.js');
-const autofillProfile = require('./api/autofillProfile.js')
+const autofillProfile = require('./api/autofillProfile.js');
+const volunteerMatching = require('./api/volunteerMatching.js'); // Add this line
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +35,7 @@ app.use('/api/register', register);
 app.use('/api/signin', signin);
 app.use('/api/profile', profile);
 app.use('/api/autofillProfile', autofillProfile);
+app.use('/api/volunteer-matching', volunteerMatching); // Add this line
 
 // Start server
 app.listen(PORT, () => {

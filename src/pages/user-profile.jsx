@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -93,7 +94,8 @@ const skillsOptions = [
 const UserProfile = () => {
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
     const [selectedDates, setSelectedDates] = useState([]);
-    const { user } = useAuth();
+    const { user, setUserProfile } = useAuth();
+    const navigate = useNavigate();
     console.log(user);
 
     useEffect(() => {
@@ -175,6 +177,10 @@ const UserProfile = () => {
             console.log(result);
             setSuccessMessage(result.message); // Set success message
             setError(null); // Clear error message
+
+            setUserProfile(data);
+
+            navigate('/volunteer-matching')
         } catch (err) {
             console.error(err);
             setError('An error occurred. Please try again.');
