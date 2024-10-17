@@ -359,18 +359,10 @@ const UserProfile = () => {
                         </div>
                     ))}
                 </div>
-<<<<<<< HEAD
                 {errors.availability && <p className="text-red-500 text-xs italic">{errors.availability.message}</p>}
             </div>
 
 
-=======
-             {/* Display error message if exists */}
-             {error && <p className="text-red-500 text-xs italic">{error}</p>}
-                {/* Display success message if exists */}
-                {successMessage && <p className="text-green-500 text-xs italic">{successMessage}</p>}
-                
->>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
             <button
     className="!bg-indigo-500 hover:!bg-indigo-700 !text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline"
     type="submit"

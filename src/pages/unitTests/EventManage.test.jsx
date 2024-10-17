@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils'; // react-scripts uses Jest's built-in transformer
 import EventManage from '../event-manage';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 // Mock react-select and react-datepicker as above
 jest.mock('react-select', () => (props) => {
@@ -33,21 +32,24 @@ jest.mock('react-datepicker', () => ({ selected, onChange }) => {
             type="date"
             data-testid="datepicker"
             value={selected ? selected.toISOString().split('T')[0] : ''}
-            onChange={(e) => onChange(new Date(e.target.value))}
+            onChange={(e) => onChange(new Date(e.target.value))} 
         />
     );
 });
 
 describe('EventManage Component', () => {
-    it('renders form fields and handles form submission', async () => {
+    test('renders form fields and handles form submission', async () => {
         render(<EventManage />);
         
+        // Simulate input change for event name field
         fireEvent.change(screen.getByLabelText(/Event Name/i), {
             target: { value: 'Sample Event' },
         });
 
+        // Simulate form submission
         fireEvent.click(screen.getByText(/Submit/i));
 
+        // Expect error message for required fields
         expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
     });
 });
