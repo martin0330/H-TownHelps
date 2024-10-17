@@ -2,11 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from "react-router-dom";
 import MainPage from "../main-page"; 
-<<<<<<< HEAD
-
-=======
 import '@testing-library/jest-dom';
->>>>>>> newTests2
 
 describe("MainPage Component", () => {
   

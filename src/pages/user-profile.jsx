@@ -92,16 +92,11 @@ const skillsOptions = [
 ];
 
 const UserProfile = () => {
-<<<<<<< HEAD
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({criteriaMode: "all"});
-    const [selectedDates, setSelectedDates] = React.useState([]);
-=======
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
     const [selectedDates, setSelectedDates] = useState([]);
     const { user, setUserProfile } = useAuth();
     const navigate = useNavigate();
     console.log(user);
->>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
 
     useEffect(() => {
         const fetchData = async () => {
@@ -158,17 +153,6 @@ const UserProfile = () => {
     const onSubmit = async(data) => {
         data.skills = watch('skills');
         data.availability = selectedDates;
-<<<<<<< HEAD
-
-        if (selectedDates.length === 0) {
-            errors.availability = { message: "This field is required" };
-            return;
-        }
-
-        console.log(data);
-
-
-=======
         data.email = user.userEmail;
 
         try {
@@ -202,7 +186,6 @@ const UserProfile = () => {
             setError('An error occurred. Please try again.');
             setSuccessMessage(null); // Clear success message
         }
->>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
     };
 
     const handleDateChange = (date) => {
