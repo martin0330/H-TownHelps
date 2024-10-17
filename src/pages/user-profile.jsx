@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useAuth } from '../components/authContext';
 
 const states = [
     { value: 'AL', label: 'Alabama' },
@@ -90,12 +92,73 @@ const skillsOptions = [
 ];
 
 const UserProfile = () => {
+<<<<<<< HEAD
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({criteriaMode: "all"});
     const [selectedDates, setSelectedDates] = React.useState([]);
+=======
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const [selectedDates, setSelectedDates] = useState([]);
+    const { user, setUserProfile } = useAuth();
+    const navigate = useNavigate();
+    console.log(user);
+>>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
 
-    const onSubmit = (data) => {
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/autofillProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: user.userEmail }),
+                });
+    
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    setValue('fullName', result.fullName);
+                    setValue('address1', result.address1);
+                    setValue('address2', result.address2);
+                    setValue('city', result.city);
+                    setValue('zipCode', result.zipCode);
+                    
+                    // Set state value
+                    const stateValue = states.find(state => state.value === result.state);
+                    setValue('state', stateValue); // Autofill state
+    
+                    // Set skills value
+                    const skillsValues = result.skills.map(skill => ({
+                        value: skill,
+                        label: skill
+                    }));
+                    setValue('skills', skillsValues); // Autofill skills
+                    
+                    // Set selected dates
+                    const availabilityDates = result.availability.map(dateStr => new Date(dateStr));
+                    setSelectedDates(availabilityDates);
+                } else {
+                    const errorData = await response.json();
+                    console.log(errorData.error);
+                }
+            } catch (err) {
+                console.error(err);
+                setError('An error occurred while autofilling. Please try again.');
+                setSuccessMessage(null); // Clear success message
+            }
+        };
+    
+        fetchData();
+    }, [user.userEmail]);
+    
+
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+
+    const onSubmit = async(data) => {
         data.skills = watch('skills');
         data.availability = selectedDates;
+<<<<<<< HEAD
 
         if (selectedDates.length === 0) {
             errors.availability = { message: "This field is required" };
@@ -105,6 +168,41 @@ const UserProfile = () => {
         console.log(data);
 
 
+=======
+        data.email = user.userEmail;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            // Check for the response status
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.log(errorData.error);
+                setError(errorData.error || 'Something went wrong. Please try again.');
+                setSuccessMessage(null); // Clear success message
+                return;
+            }
+
+            const result = await response.json();
+            console.log(result);
+            setSuccessMessage(result.message); // Set success message
+            setError(null); // Clear error message
+
+            setUserProfile(data);
+
+            navigate('/volunteer-matching')
+        } catch (err) {
+            console.error(err);
+            setError('An error occurred. Please try again.');
+            setSuccessMessage(null); // Clear success message
+        }
+>>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
     };
 
     const handleDateChange = (date) => {
@@ -116,8 +214,6 @@ const UserProfile = () => {
     const handleDateRemove = (dateToRemove) => {
         setSelectedDates(selectedDates.filter(date => date.getTime() !== dateToRemove.getTime()));
     };
-
-
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10">
             <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-3xl bg-white p-8 rounded shadow-md">
@@ -263,10 +359,18 @@ const UserProfile = () => {
                         </div>
                     ))}
                 </div>
+<<<<<<< HEAD
                 {errors.availability && <p className="text-red-500 text-xs italic">{errors.availability.message}</p>}
             </div>
 
 
+=======
+             {/* Display error message if exists */}
+             {error && <p className="text-red-500 text-xs italic">{error}</p>}
+                {/* Display success message if exists */}
+                {successMessage && <p className="text-green-500 text-xs italic">{successMessage}</p>}
+                
+>>>>>>> 6fa9fa7b427804bbc82e2fb521fb36d4ef0a96ca
             <button
     className="!bg-indigo-500 hover:!bg-indigo-700 !text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline"
     type="submit"

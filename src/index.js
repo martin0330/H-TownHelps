@@ -12,9 +12,12 @@ import VolunteerHist from './pages/volunteer-hist';
 import NotFound from './pages/NotFound';
 import MainPage from './pages/main-page'; // Import the MainPage component
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from './components/authContext';
+import VolunteerMatchingForm from './pages/volunteer-match';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+    <AuthProvider>
     <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
@@ -23,11 +26,12 @@ root.render(
         <Route path="main" element={<MainPage />} />  {/* Add the MainPage route */}
         <Route path="userprofile" element={<UserProfile />} />
         <Route path="eventmanage" element={<EventManage />} />
-        <Route path="volunteermatch" element={<VolunteerMatch />} />
+        <Route path="volunteer-match" element={<VolunteerMatchingForm />} />
         <Route path="notifications" element={<NotificationSys />} />
         <Route path="volunteerhist" element={<VolunteerHist />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   </BrowserRouter>
+  </AuthProvider>
 );
