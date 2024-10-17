@@ -3,11 +3,15 @@ require('dotenv').config({ path: '../../.env' });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+// Apis
 const register = require('./api/register.js');
 const signin = require('./api/signin.js');
 const profile = require('./api/profile.js');
+const adminAccess = require('./api/adminAccess.js');
 const autofillProfile = require('./api/autofillProfile.js');
-const volunteerMatching = require('./api/volunteerMatching.js'); // Add this line
+const getEvents = require('./api/events/getEvents.js');
+const addEvent = require('./api/events/addEvent.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,13 +24,10 @@ app.use(express.json());
 
 // Connect to MongoDB
 mongoose
-    .connect(
-        process.env.REACT_APP_ATLAS_URI,
-        {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        }
-    )
+    .connect(process.env.REACT_APP_ATLAS_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -34,8 +35,10 @@ mongoose
 app.use('/api/register', register);
 app.use('/api/signin', signin);
 app.use('/api/profile', profile);
+app.use('/api/adminAccess', adminAccess);
 app.use('/api/autofillProfile', autofillProfile);
-app.use('/api/volunteer-matching', volunteerMatching); // Add this line
+app.use('/api/getEvents', getEvents);
+app.use('/api/addEvent', addEvent);
 
 // Start server
 app.listen(PORT, () => {
