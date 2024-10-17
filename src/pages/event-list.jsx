@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../components/authContext';
+import { Link } from 'react-router-dom';
 
 const EventList = () => {
     const { user } = useAuth(); // Assuming user.UserEmail is available here
@@ -11,7 +12,7 @@ const EventList = () => {
         // Fetch the events from the backend
         const fetchEvents = async () => {
             try {
-                const response = await fetch('/api/getEvents', {
+                const response = await fetch('http://localhost:5000/api/getEvents', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -30,10 +31,10 @@ const EventList = () => {
         // Check if the user has admin access
         const getAdminAccess = async () => {
             try {
-                const response = await fetch('/api/adminAccess', {
+                const response = await fetch('http://localhost:5000/api/adminAccess', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: user.UserEmail }),
+                    body: JSON.stringify({ email: user.userEmail }),
                 });
                 const data = await response.json();
 
@@ -49,14 +50,16 @@ const EventList = () => {
 
         fetchEvents();
         getAdminAccess();
-    }, [user.UserEmail]);
+    }, [user.userEmail]);
 
     // Delete event function
     const handleDelete = async (eventId) => {
         try {
-            const response = await fetch(`/api/deleteEvent/${eventId}`, {
+            console.log(`event id: ${eventId}`)
+            const response = await fetch('http://localhost:5000/api/deleteEvent', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventId })
             });
 
             if (response.ok) {
@@ -80,6 +83,15 @@ const EventList = () => {
                 </h1>
                 {error && (
                     <p className='text-red-500 text-center mb-4'>{error}</p>
+                )}
+                {adminAccess && (
+                    <div className="text-center mb-6">
+                        <Link to='/eventmanage'>
+                            <button className='bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300'>
+                                Add Event
+                            </button>
+                        </Link>
+                    </div>
                 )}
                 {events.length > 0 ? (
                     <ul className='space-y-6'>

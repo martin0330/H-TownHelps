@@ -12,6 +12,7 @@ const adminAccess = require('./api/adminAccess.js');
 const autofillProfile = require('./api/autofillProfile.js');
 const getEvents = require('./api/events/getEvents.js');
 const addEvent = require('./api/events/addEvent.js');
+const deleteEvent = require('./api/events/deleteEvent.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -39,6 +40,7 @@ app.use('/api/adminAccess', adminAccess);
 app.use('/api/autofillProfile', autofillProfile);
 app.use('/api/getEvents', getEvents);
 app.use('/api/addEvent', addEvent);
+app.use('/api/deleteEvent', deleteEvent);
 
 // Start server
 app.listen(PORT, () => {

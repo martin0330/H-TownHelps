@@ -6,10 +6,9 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
     const { email } = req.body;
-    console.log(req.body);
 
     try {
-        const User = await userProfile.findOne({ email: email });
+        const User = await userProfile.findOne({ email });
         const adminAccess = User.adminAccess;
         return res.status(201).json({ access: adminAccess });
     } catch (error) {

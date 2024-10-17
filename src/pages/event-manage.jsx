@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -69,13 +70,15 @@ const EventManage = () => {
     const [submitError, setSubmitError] = React.useState(''); // Error state for submission
     const [submitSuccess, setSubmitSuccess] = React.useState(''); // Success state for submission
 
+    const navigate = useNavigate();
+
     const onSubmit = async (data) => {
         try {
             data.skills = watch('skills');
             data.date = selectedDate; // Save the single date
 
             // Send POST request to the backend
-            const response = await fetch('/api/addEvent', {
+            const response = await fetch('http://localhost:5000/api/addEvent', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,6 +95,7 @@ const EventManage = () => {
             const result = await response.json();
             setSubmitSuccess('Event added successfully!');
             setSubmitError('');
+            navigate("/events");
         } catch (error) {
             console.error('Failed to submit event:', error);
             setSubmitError('Failed to submit event.');
