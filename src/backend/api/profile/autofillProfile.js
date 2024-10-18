@@ -1,7 +1,7 @@
 // backend/autofillProfile.js
 const express = require('express');
 const mongoose = require('mongoose');
-const profileInfo = require('../../schemas/profileInfo');
+const profileInfo = require('../../../schemas/profileInfo');
 const router = express.Router();
 
 router.post('/', async (req, res) => {

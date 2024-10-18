@@ -21,7 +21,7 @@ function App() {
                 <nav className="bg-sky-950 text-white p-4 shadow-md">
                     <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center">
-                            <div className="text-3xl font-bold font-quicksand">H-TownHelps</div>
+                            <div className="text-3xl font-bold font-quicksand"><Link to='/main'>H-TownHelps</Link></div>
 
                             {/* Hamburger Button for Mobile */}
                             <div className="sm:hidden">
@@ -50,7 +50,7 @@ function App() {
                             <div className="hidden sm:flex space-x-6">
                                 <Link to='/userprofile' className="hover:underline">User Profile Page</Link>
                                 <Link to='/events' className="hover:underline">Events Page</Link>
-                                <Link to='/volunteermatch' className="hover:underline">Volunteer Matching Page</Link>
+                                <Link to='/volunteer-match' className="hover:underline">Volunteer Matching Page</Link>
                                 <Link to='/notifications' className="hover:underline">Notifications Page</Link>
                                 <Link to='/volunteerhist' className="hover:underline">Volunteer History Page</Link>
                             </div>
@@ -80,7 +80,7 @@ function App() {
                                     </li>
                                     <li>
                                         <Link
-                                            to='/volunteermatch'
+                                            to='/volunteer-match'
                                             className="block hover:underline"
                                             onClick={() => setIsMenuOpen(false)}
                                         >

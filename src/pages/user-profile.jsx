@@ -143,9 +143,6 @@ const UserProfile = () => {
         fetchData();
     }, [user.userEmail]);
 
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(null);
-
     const onSubmit = async (data) => {
         data.skills = watch('skills');
         data.skills = data.skills.map( entry => entry.value ); // save only the value of the entry

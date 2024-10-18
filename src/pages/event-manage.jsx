@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, Controller} from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
@@ -31,6 +31,7 @@ const skillsOptions = [
 
 const EventManage = () => {
     const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
+    const [selectedDate, setSelectedDate] = useState(null);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState('');
     const [availableUsers, setAvailableUsers] = useState([]);

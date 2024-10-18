@@ -2,98 +2,146 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/authContext';
 
 const VolunteerMatchingForm = () => {
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { userProfile } = useAuth();
+  const [events, setEvents] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+  const [adminAccess, setAdminAccess] = useState(false); // Track admin access
+  const [selectedPeople, setSelectedPeople] = useState({}); // Store selected profiles for each event
+  const { user } = useAuth();
 
-  // Simulating fetching data from a database
   useEffect(() => {
-    const fetchMatches= async () => {
-      if (!userProfile) {
-        setError("Please complete you profile first");
-        setLoading(false);
-        return;
-      }
+    const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/volunteer-matching', {
+        const response = await fetch('http://localhost:5000/api/getEvents', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userProfile),
+          headers: { 'Content-Type': 'application/json' },
         });
-
-        if(!response.ok){
-          throw new Error('Failed to fetch matches');
-        }
-
         const data = await response.json();
-        setMatches(data);
-        setLoading(false);
-      } catch(error) {
-        console.error('Error fetching matches:', error);
-        setError('Failed to fetch matches. Please try again later.');
-        setLoading(false);
+
+        if (response.ok) {
+          // Sort events by date (earliest to latest)
+          const sortedEvents = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+          setEvents(sortedEvents); // Set the sorted events
+        } else {
+          setError(data.error); // Handle the error response
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
-    fetchMatches();  
-  }, [userProfile]);
 
-  const handleConfirmMatch = async (matchId) => {
-    // Implement the logic to confirm a match
-    console.log(`Confirming match for event ${matchId}`);
-    // You can make an API call here to update the match status in the backend
+    const fetchProfiles = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getProfiles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setProfiles(data);
+        } else {
+          setError(data.error); // Handle the error response
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const getAdminAccess = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/adminAccess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.userEmail }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          setAdminAccess(data.access); // Update admin access state
+        } else {
+          setError(data.error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchEvents();
+    fetchProfiles();
+    getAdminAccess();
+  }, [user]);
+
+  // Function to get available people for a specific event date
+  const getAvailablePeople = (eventDate) => {
+    return profiles.filter(profile => 
+      profile.availability.includes(eventDate)
+    );
   };
 
-  if (loading) {
-    return <div className="text-center mt-8">Loading matches...</div>;
-  }
+  // Handle change in dropdown selection
+  const handleSelectChange = (eventId, profileId) => {
+    setSelectedPeople((prevState) => ({
+      ...prevState,
+      [eventId]: profileId,
+    }));
+  };
 
-  if (error) {
-    return <div className="text-center mt-8 text-red-500">{error}</div>;
-  }
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // try {
+    //   const response = await fetch('http://localhost:5000/api/updateEventParticipants', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(selectedPeople),
+    //   });
+
+    //   const data = await response.json();
+    //   if (response.ok) {
+    //     alert("Participants updated successfully!");
+    //     // Optionally refetch events or handle UI updates here
+    //   } else {
+    //     setError(data.error);
+    //   }
+    // } catch (err) {
+    //   console.error(err);
+    // }
+
+    // Simulate a backend call to update the events in the database
+    console.log("updating events");
+  };
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="bg-black p-4 mb-4">
-        <h2 className="text-2xl font-bold text-white">Volunteer Matching Results</h2>
-      </div>
-
-      {matches.length === 0 ? (
-        <div className="text-center mt-8">No matching opportunities found.</div>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      {error && <p className="text-red-500">{error}</p>}
+      {!adminAccess ? (
+        <p className="text-lg text-gray-700">You do not have access to view the events.</p>
       ) : (
-        matches.map((match, index) => (
-          <div key={index} className="bg-white shadow-md rounded-lg p-6 mb-6 flex">
-            <div className="w-2/3 pr-6">
-              <h3 className="text-xl font-semibold mb-2">{match.title}</h3>
-              <div className="mb-4">
-                <p><strong>Skills Required:</strong> {match.requiredSkills.join(', ')}</p>
-                <p><strong>Date & Time:</strong> {new Date(match.dateTime).toLocaleString()}</p>
-                <p><strong>Location:</strong> {match.location}</p>
-              </div>
-              <div className="bg-gray-50 border rounded-md p-4 mt-4">
-                <h4 className="text-lg font-semibold mb-2">Event Details</h4>
-                <p>{match.description}</p>
-              </div>
-              <div className="mt-6">
-                <button 
-                  onClick={() => handleConfirmMatch(match._id)}
-                  className="px-6 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
-                >
-                  Confirm Match
-                </button>
-              </div>
+        <form onSubmit={handleSubmit}>
+          {events.map(event => (
+            <div key={event.id} className="mb-4 p-4 border rounded-lg shadow-md bg-gray-50">
+              <h3 className="text-xl font-semibold">{event.name}</h3>
+              <p className="text-gray-600">Date: {new Date(event.date).toLocaleDateString()}</p>
+              <label htmlFor={`people-dropdown-${event.id}`} className="block mt-2 text-sm font-medium text-gray-700">Select People:</label>
+              <select
+                id={`people-dropdown-${event.id}`}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-500"
+                onChange={(e) => handleSelectChange(event.id, e.target.value)}
+                defaultValue={selectedPeople[event.id] || ""}
+              >
+                <option value="">-- Select a person --</option>
+                {getAvailablePeople(event.date).map(profile => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="w-1/3">
-              <img
-                src={match.imageUrl || "https://via.placeholder.com/300x200.png?text=Event+Image"}
-                alt={match.title}
-                className="rounded-lg shadow-md w-full h-auto object-cover"
-              />
-            </div>
-          </div>
-        ))
+          ))}
+          <button type="submit" className="mt-4 w-full bg-indigo-600 text-white font-semibold py-2 rounded-md shadow hover:bg-indigo-700 transition duration-200">
+            Update Participants
+          </button>
+        </form>
       )}
     </div>
   );
