@@ -92,13 +92,20 @@ const skillsOptions = [
 ];
 
 const UserProfile = () => {
-    const { register, handleSubmit, setValue, control, watch, formState: { errors } } = useForm();
+    const { control, register, handleSubmit, setValue, watch, formState: { errors } } = useForm({criteriaMode: "all"});
     const [selectedDates, setSelectedDates] = useState([]);
     const { user, setUserProfile } = useAuth();
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!user || !user.userEmail) {
+                setError("User not authenticated. Please log in.");
+                return;
+            }
+
             try {
                 const response = await fetch('http://localhost:5000/api/autofillProfile', {
                     method: 'POST',
@@ -146,6 +153,11 @@ const UserProfile = () => {
         data.availability = selectedDates;
         data.email = user.userEmail;
 
+        if (selectedDates.length === 0) {
+            setError("Availability is required");
+            return;
+        }
+
         try {
             const response = await fetch('http://localhost:5000/api/profile', {
                 method: 'POST',
@@ -157,17 +169,40 @@ const UserProfile = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error || 'Something went wrong. Please try again.');
-                return;
+                throw new Error(errorData.error || 'Something went wrong. Please try again.');
             }
 
             const result = await response.json();
             setSuccessMessage(result.message);
+            setError(null);
             setUserProfile(data);
-            navigate('/volunteer-matching');
+            await triggerMatching(user.userEmail);
         } catch (err) {
             console.error(err);
-            setError('An error occurred. Please try again.');
+            setError(err.message || 'An error occurred. Please try again.');
+        }
+    };
+
+    const triggerMatching = async (email) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/trigger-matching', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to trigger matching process');
+            }
+
+            const result = await response.json();
+            setSuccessMessage(result.message);
+            navigate('/main-page');
+        } catch (error) {
+            console.error('Error triggering matching:', error);
+            setError('Failed to start matching process. Please try again.');
         }
     };
 
@@ -179,7 +214,7 @@ const UserProfile = () => {
     };
 
     const handleDateRemove = (dateToRemove) => {
-        setSelectedDates(selectedDates.filter(date => date.getTime() !== dateToRemove.getTime()));
+        setSelectedDates(prev => prev.filter(date => date.getTime() !== dateToRemove.getTime()));
     };
 
     return (

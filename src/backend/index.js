@@ -14,6 +14,7 @@ const getEvents = require('./api/events/getEvents.js');
 const getEvent = require('./api/events/getEvent.js');
 const addEvent = require('./api/events/addEvent.js');
 const deleteEvent = require('./api/events/deleteEvent.js');
+const adminMatching = require('./api/adminMatching.js');
 const updateEvent = require('./api/events/updateEvent.js');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/getEvents', getEvents);
 app.use('/api/getEvent', getEvent);
 app.use('/api/addEvent', addEvent);
 app.use('/api/deleteEvent', deleteEvent);
+app.use('/api/admin/matching', adminMatching);
 app.use('/api/updateEvent', updateEvent);
 
 // Start server

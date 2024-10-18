@@ -6,7 +6,6 @@ import Login from './pages/login';
 import Registration from './pages/registration';
 import UserProfile from './pages/user-profile';
 import EventManage from './pages/event-manage';
-import VolunteerMatch from './pages/volunteer-match';
 import NotificationSys from './pages/notification-sys';
 import VolunteerHist from './pages/volunteer-hist';
 import NotFound from './pages/NotFound';

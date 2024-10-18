@@ -30,10 +30,32 @@ const skillsOptions = [
 ];
 
 const EventManage = () => {
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
-    const [selectedDate, setSelectedDate] = React.useState(null);
-    const [submitError, setSubmitError] = React.useState('');
-    const [submitSuccess, setSubmitSuccess] = React.useState('');
+    const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
+    const [submitError, setSubmitError] = useState('');
+    const [submitSuccess, setSubmitSuccess] = useState('');
+    const [availableUsers, setAvailableUsers] = useState([]);
+
+    const watchDate = watch('date');
+
+    useEffect(() => {
+        if (watchDate) {
+            fetchAvailableUsers(watchDate);
+        }
+    }, [watchDate]);
+
+    const fetchAvailableUsers = async (date) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/availableUsers?date=${date.toISOString()}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch available users');
+            }
+            const users = await response.json();
+            setAvailableUsers(users.map(user => ({ value: user._id, label: user.fullName })));
+        } catch (error) {
+            console.error('Failed to fetch available users:', error);
+            setSubmitError('Failed to fetch available users.');
+        }
+    };
     const navigate = useNavigate();
 
     const onSubmit = async (data) => {
@@ -49,8 +71,7 @@ const EventManage = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                setSubmitError(errorData.error || 'An error occurred.');
-                return;
+                throw new Error(errorData.error || 'An error occurred.');
             }
 
             const result = await response.json();
@@ -88,53 +109,93 @@ const EventManage = () => {
                             className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
                             id="eventDesc"
                             rows={4}
-                            {...register('eventDesc', { required: true })}
+                            {...register('description', { required: 'Description is required' })}
                         />
-                        {errors.eventDesc && <p className="text-red-500 text-xs italic">Description is required</p>}
+                        {errors.description && <p className='text-red-500 text-xs italic'>{errors.description.message}</p>}
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700 font-medium mb-2" htmlFor="location">Location</label>
-                        <textarea
-                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
-                            id="location"
-                            rows={2}
-                            {...register('location', { required: true })}
+                    <div className='mb-4'>
+                        <label className='block text-gray-700 font-bold mb-2' htmlFor='location'>
+                            Location
+                        </label>
+                        <input
+                            className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                            id='location'
+                            type='text'
+                            {...register('location', { required: 'Location is required' })}
                         />
-                        {errors.location && <p className="text-red-500 text-xs italic">Location is required</p>}
+                        {errors.location && <p className='text-red-500 text-xs italic'>{errors.location.message}</p>}
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700 font-medium mb-2">Skills</label>
-                        <Select
-                            name="skills"
-                            options={skillsOptions}
-                            isMulti
-                            className="w-full"
-                            onChange={(options) => setValue('skills', options.map(option => option.value))}
+                    <div className='mb-4'>
+                        <label className='block text-gray-700 font-bold mb-2'>
+                            Event Date
+                        </label>
+                        <Controller
+                            name='date'
+                            control={control}
+                            rules={{ required: 'Event date is required' }}
+                            render={({ field }) => (
+                                <DatePicker
+                                    selected={field.value}
+                                    onChange={(date) => field.onChange(date)}
+                                    className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                                    placeholderText='Select event date'
+                                />
+                            )}
                         />
-                        {errors.skills && <p className="text-red-500 text-xs italic">This field is required</p>}
+                        {errors.date && <p className='text-red-500 text-xs italic'>{errors.date.message}</p>}
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700 font-medium mb-2">Event Date</label>
-                        <DatePicker
-                            selected={selectedDate}
-                            onChange={handleDateChange}
-                            className="w-full border border-gray-300 rounded py-2 px-3 text-gray-700"
-                            placeholderText="Select event date"
+                    <div className='mb-4'>
+                        <label className='block text-gray-700 font-bold mb-2'>
+                            Available Users
+                        </label>
+                        <Controller
+                            name='selectedUsers'
+                            control={control}
+                            rules={{ required: 'At least one user must be selected' }}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    options={availableUsers}
+                                    isMulti
+                                    className='basic-multi-select'
+                                    classNamePrefix='select'
+                                />
+                            )}
                         />
-                        {errors.date && <p className="text-red-500 text-xs italic">This field is required</p>}
+                        {errors.selectedUsers && <p className='text-red-500 text-xs italic'>{errors.selectedUsers.message}</p>}
                     </div>
 
-                    <button className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring focus:ring-indigo-500" type="submit">Submit</button>
+                    <div className='mb-4'>
+                        <label className='block text-gray-700 font-bold mb-2' htmlFor='imageUrl'>
+                            Image URL (optional)
+                        </label>
+                        <input
+                            className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                            id='imageUrl'
+                            type='text'
+                            {...register('imageUrl')}
+                        />
+                    </div>
+
+                    <div className='flex items-center justify-between'>
+                        <button
+                            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+                            type='submit'
+                        >
+                            Create Event
+                        </button>
+                    </div>
                 </form>
 
-                {submitError && <p className="text-red-500 text-sm italic mt-4">{submitError}</p>}
-                {submitSuccess && <p className="text-green-500 text-sm italic mt-4">{submitSuccess}</p>}
+                {submitError && <p className='text-red-500 text-xs italic mt-4'>{submitError}</p>}
+                {submitSuccess && <p className='text-green-500 text-xs italic mt-4'>{submitSuccess}</p>}
             </div>
         </div>
     );
 };
 
 export default EventManage;
+
