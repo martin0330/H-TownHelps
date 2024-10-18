@@ -13,15 +13,20 @@ const EventList = () => {
         // Fetch the events from the backend
         const fetchEvents = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/getEvents', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                });
+                const response = await fetch(
+                    'http://localhost:5000/api/getEvents',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    }
+                );
                 const data = await response.json();
 
                 if (response.ok) {
                     // Sort events by date (earliest to latest)
-                    const sortedEvents = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const sortedEvents = data.sort(
+                        (a, b) => new Date(a.date) - new Date(b.date)
+                    );
                     setEvents(sortedEvents); // Set the sorted events
                 } else {
                     setError(data.error); // Handle the error response
@@ -34,11 +39,14 @@ const EventList = () => {
         // Check if the user has admin access
         const getAdminAccess = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/adminAccess', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: user.userEmail }),
-                });
+                const response = await fetch(
+                    'http://localhost:5000/api/adminAccess',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: user.userEmail }),
+                    }
+                );
                 const data = await response.json();
 
                 if (response.ok) {
@@ -59,11 +67,14 @@ const EventList = () => {
     const handleDelete = async (eventId) => {
         try {
             console.log(`event id: ${eventId}`);
-            const response = await fetch('http://localhost:5000/api/deleteEvent', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ eventId })
-            });
+            const response = await fetch(
+                'http://localhost:5000/api/deleteEvent',
+                {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventId }),
+                }
+            );
 
             if (response.ok) {
                 // Remove the deleted event from the events array
@@ -79,26 +90,9 @@ const EventList = () => {
     };
 
     // Navigate to the edit event form
-    const handleEdit = async (eventId) => {
-        // try {
-        //     console.log(`event id: ${eventId}`);
-        //     const response = await fetch('http://localhost:5000/api/deleteEvent', {
-        //         method: 'DELETE',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({ eventId })
-        //     });
-
-        //     if (response.ok) {
-        //         // Remove the deleted event from the events array
-        //         setEvents(events.filter((event) => event._id !== eventId));
-        //     } else {
-        //         const errorData = await response.json();
-        //         setError(errorData.error);
-        //     }
-        // } catch (err) {
-        //     console.error('Failed to delete event:', err);
-        //     setError('Failed to delete event.');
-        // }
+    const handleEdit = (eventId) => {
+        // Navigate to the edit event form, passing the eventId as a parameter
+        navigate(`/editEvent/${eventId}`);
     };
 
     return (
@@ -111,7 +105,7 @@ const EventList = () => {
                     <p className='text-red-500 text-center mb-4'>{error}</p>
                 )}
                 {adminAccess && (
-                    <div className="text-center mb-6">
+                    <div className='text-center mb-6'>
                         <Link to='/eventmanage'>
                             <button className='bg-blue-600 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300'>
                                 Add Event
@@ -133,7 +127,11 @@ const EventList = () => {
                                     {event.description}
                                 </p>
                                 <p className='text-gray-500 mt-2'>
-                                    Date: {new Date(event.date).toLocaleDateString()}
+                                    Location: {event.location}
+                                </p>
+                                <p className='text-gray-500 mt-2'>
+                                    Date:{' '}
+                                    {new Date(event.date).toLocaleDateString()}
                                 </p>
                                 <p className='text-gray-500 mt-2'>
                                     Skills: {event.skills.join(', ')}
@@ -144,16 +142,20 @@ const EventList = () => {
 
                                 {/* Conditionally render admin buttons */}
                                 {adminAccess && (
-                                    <div className="flex space-x-4 mt-4">
+                                    <div className='flex space-x-4 mt-4'>
                                         <button
                                             className='bg-red-600 hover:bg-red-800 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline duration-300'
-                                            onClick={() => handleDelete(event._id)}
+                                            onClick={() =>
+                                                handleDelete(event._id)
+                                            }
                                         >
                                             Delete Event
                                         </button>
                                         <button
                                             className='bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline duration-300'
-                                            onClick={() => handleEdit(event._id)}
+                                            onClick={() =>
+                                                handleEdit(event._id)
+                                            }
                                         >
                                             Edit Event
                                         </button>
