@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -92,11 +92,10 @@ const skillsOptions = [
 ];
 
 const UserProfile = () => {
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, control, watch, formState: { errors } } = useForm();
     const [selectedDates, setSelectedDates] = useState([]);
     const { user, setUserProfile } = useAuth();
     const navigate = useNavigate();
-    console.log(user);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -108,50 +107,42 @@ const UserProfile = () => {
                     },
                     body: JSON.stringify({ email: user.userEmail }),
                 });
-    
+
                 if (response.ok) {
                     const result = await response.json();
-                    console.log(result);
                     setValue('fullName', result.fullName);
                     setValue('address1', result.address1);
                     setValue('address2', result.address2);
                     setValue('city', result.city);
                     setValue('zipCode', result.zipCode);
                     
-                    // Set state value
                     const stateValue = states.find(state => state.value === result.state);
-                    setValue('state', stateValue); // Autofill state
-    
-                    // Set skills value
+                    setValue('state', stateValue); 
+
                     const skillsValues = result.skills.map(skill => ({
                         value: skill,
                         label: skill
                     }));
-                    setValue('skills', skillsValues); // Autofill skills
+                    setValue('skills', skillsValues);
                     
-                    // Set selected dates
                     const availabilityDates = result.availability.map(dateStr => new Date(dateStr));
                     setSelectedDates(availabilityDates);
-                } else {
-                    const errorData = await response.json();
-                    console.log(errorData.error);
                 }
             } catch (err) {
                 console.error(err);
-                setError('An error occurred while autofilling. Please try again.');
-                setSuccessMessage(null); // Clear success message
             }
         };
-    
+
         fetchData();
     }, [user.userEmail]);
-    
 
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
 
-    const onSubmit = async(data) => {
-        data.skills = watch('skills');
+    const onSubmit = async (data) => {
+        data.skills = watch('skills'); // Get skills from the form state
+        data.skills = data.skills.map( entry => entry.value)
+        data.state = data.state.value
         data.availability = selectedDates;
         data.email = user.userEmail;
 
@@ -164,199 +155,186 @@ const UserProfile = () => {
                 body: JSON.stringify(data),
             });
 
-            // Check for the response status
             if (!response.ok) {
                 const errorData = await response.json();
-                console.log(errorData.error);
                 setError(errorData.error || 'Something went wrong. Please try again.');
-                setSuccessMessage(null); // Clear success message
                 return;
             }
 
             const result = await response.json();
-            console.log(result);
-            setSuccessMessage(result.message); // Set success message
-            setError(null); // Clear error message
-
+            setSuccessMessage(result.message);
             setUserProfile(data);
-
-            navigate('/volunteer-matching')
+            navigate('/volunteer-matching');
         } catch (err) {
             console.error(err);
             setError('An error occurred. Please try again.');
-            setSuccessMessage(null); // Clear success message
         }
     };
 
     const handleDateChange = (date) => {
-        if (date) {
-            setSelectedDates([...selectedDates, date]);
+        if (date && !selectedDates.some(selectedDate => selectedDate.getTime() === date.getTime())) {
+            const updatedDates = [...selectedDates, date].sort((a, b) => a - b);
+            setSelectedDates(updatedDates);
         }
     };
 
     const handleDateRemove = (dateToRemove) => {
         setSelectedDates(selectedDates.filter(date => date.getTime() !== dateToRemove.getTime()));
     };
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-3xl bg-white p-8 rounded shadow-md">
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 py-10">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg">
 
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="fullName">
-                    Full Name
-                </label>
-                <input
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="fullName"
-                    type="text"
-                    placeholder="John Doe"
-                    {...register('fullName', { required: true, maxLength: 50 })}
-                />
-                {errors.fullName && <p className="text-red-500 text-xs italic">This field is required (max 50 characters)</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="address1">
-                    Address 1
-                </label>
-                <input
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="address1"
-                    type="text"
-                    placeholder="123 Main St"
-                    {...register('address1', { required: true, maxLength: 100 })}
-                />
-                {errors.address1 && <p className="text-red-500 text-xs italic">This field is required</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="address2">
-                    Address 2
-                </label>
-                <input
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="address2"
-                    type="text"
-                    placeholder="Apartment, suite, etc. (optional)"
-                    {...register('address2', { maxLength: 100 })}
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="city">
-                    City
-                </label>
-                <input
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="city"
-                    type="text"
-                    placeholder="City"
-                    {...register('city', { required: true, maxLength: 100 })}
-                />
-                {errors.city && <p className="text-red-500 text-xs italic">This field is required</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" id="state-select">
-                    State
-                </label>
-                <Select
-                    aria-labelledby="state-select"
-                    name="state"
-                    options={states}
-                    className="w-full"
-                    onChange={(option) => setValue('state', option.value)}
-                />
-                {errors.state && <p className="text-red-500 text-xs italic">This field is required</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="zipCode">
-                    Zip Code
-                </label>
-                <input
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="zipCode"
-                    type="text"
-                    placeholder="12345"
-                    {...register('zipCode', { required: true, minLength: 5, maxLength: 9 })}
-                />
-                {errors.zipCode && <p className="text-red-500 text-xs italic">This field is required (5-9 characters)</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" id="skills-label">
-                    Skills
-                </label>
-                <Select
-                    name="skills"
-                    options={skillsOptions}
-                    isMulti
-                    className="w-full"
-                    aria-labelledby="skills-label"
-                    onChange={(options) => setValue('skills', options.map(option => option.value))}
-                />
-                {errors.skills && <p className="text-red-500 text-xs italic">This field is required</p>}
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="preferences">
-                    Preferences
-                </label>
-                <textarea
-                    className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500"
-                    id="preferences"
-                    placeholder="Enter your preferences"
-                    {...register('preferences')}
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="availability">
-                    Availability
-                </label>
-                <DatePicker
-                    id="availability" // Ensure the label is linked to the input
-                    selected={null}
-                    onChange={handleDateChange}
-                    selectsStart
-                    startDate={null}
-                    endDate={null}
-                    inline
-                    role="combobox" // Add accessible role
-                    aria-labelledby="availability-label" // Ensure the correct label association
-                    className="w-full border border-gray-400 rounded py-2 px-3 text-gray-700"
-                    placeholderText="Select dates"
-                />
-                <div className="mt-2">
-                    {selectedDates.map((date, index) => (
-                        <div key={index} className="flex items-center mb-1">
-                            <span className="text-gray-700">{date.toDateString()}</span>
-                            <button
-                                type="button"
-                                onClick={() => handleDateRemove(date)}
-                                className="ml-2 text-red-500 hover:text-red-700"
-                            >
-                                Remove
-                            </button>
-                        </div>
-                    ))}
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="fullName">
+                        Full Name
+                    </label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        {...register('fullName', { required: true })}
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 ${
+                            errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                    />
+                    {errors.fullName && <p className="text-red-500 mt-1">This field is required</p>}
                 </div>
-                {errors.availability && <p className="text-red-500 text-xs italic">{errors.availability.message}</p>}
-            </div>
 
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="address1">
+                        Address 1
+                    </label>
+                    <input
+                        type="text"
+                        id="address1"
+                        {...register('address1', { required: true })}
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 ${
+                            errors.address1 ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                    />
+                    {errors.address1 && <p className="text-red-500 mt-1">This field is required</p>}
+                </div>
 
-            <button
-    className="!bg-indigo-500 hover:!bg-indigo-700 !text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-    type="submit"
->
-    Submit
-</button>
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="address2">
+                        Address 2
+                    </label>
+                    <input
+                        type="text"
+                        id="address2"
+                        {...register('address2')}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 border-gray-300"
+                    />
+                </div>
 
-        </form>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-semibold mb-2" htmlFor="state">State</label>
+                        <Controller
+                            name="state"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    options={states}
+                                    {...field}
+                                    onChange={option => field.onChange(option)} // Correctly handle the change
+                                    defaultValue={field.value} // Set default value
+                                />
+                            )}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700 font-semibold mb-2" htmlFor="city">
+                            City
+                        </label>
+                        <input
+                            type="text"
+                            id="city"
+                            {...register('city', { required: true })}
+                            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 ${
+                                errors.city ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        />
+                        {errors.city && <p className="text-red-500 mt-1">This field is required</p>}
+                    </div>
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="zipCode">
+                        Zip Code
+                    </label>
+                    <input
+                        type="text"
+                        id="zipCode"
+                        {...register('zipCode', { required: true })}
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 ${
+                            errors.zipCode ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                    />
+                    {errors.zipCode && <p className="text-red-500 mt-1">This field is required</p>}
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="skills">Skills</label>
+                    <Controller
+                        name="skills"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                options={skillsOptions}
+                                isMulti
+                                {...field}
+                                onChange={option => field.onChange(option)} // Handle multi-selection correctly
+                                defaultValue={field.value}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="availability">
+                        Availability
+                    </label>
+                    <DatePicker
+                        selected={null}
+                        onChange={handleDateChange}
+                        highlightDates={selectedDates} // Highlight selected dates
+                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 w-full"
+                        placeholderText="Select available dates"
+                        inline // Display the calendar inline
+                    />
+                    <ul className="mt-2">
+                        {selectedDates.map((date, index) => (
+                            <li key={index} className="flex items-center justify-between mb-1">
+                                {date.toLocaleDateString()}
+                                <button
+                                    type="button"
+                                    onClick={() => handleDateRemove(date)}
+                                    className="text-red-500 hover:underline text-sm"
+                                >
+                                    Remove
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div className="mt-6">
+                    <button
+                        type="submit"
+                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    >
+                        Save Profile
+                    </button>
+                </div>
+
+                {error && <p className="text-red-500 mt-4">{error}</p>}
+                {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>}
+            </form>
         </div>
     );
 };
 
 export default UserProfile;
-

@@ -18,71 +18,32 @@ const skillsOptions = [
     { value: 'Engineering', label: 'Engineering' },
     { value: 'Finance', label: 'Finance' },
     { value: 'Food Service & Events', label: 'Food Service & Events' },
-    {
-        value: 'For Profit & Nonprofit Development',
-        label: 'For Profit & Nonprofit Development',
-    },
-    { value: 'HR', label: 'HR' },
-    {
-        value: 'Healthcare & Social Services',
-        label: 'Healthcare & Social Services',
-    },
-    { value: 'Hobbies & Crafts', label: 'Hobbies & Crafts' },
+    { value: 'Healthcare & Social Services', label: 'Healthcare & Social Services' },
     { value: 'Housing & Facilities', label: 'Housing & Facilities' },
-    {
-        value: 'IT Infrastructure & Software',
-        label: 'IT Infrastructure & Software',
-    },
-    {
-        value: 'Interactive & Web Development',
-        label: 'Interactive & Web Development',
-    },
-    { value: 'Interpersonal', label: 'Interpersonal' },
-    { value: 'Language & Culture', label: 'Language & Culture' },
-    { value: 'Legal & Advocacy', label: 'Legal & Advocacy' },
-    {
-        value: 'Logistics, Supply Chain & Transportation',
-        label: 'Logistics, Supply Chain & Transportation',
-    },
-    {
-        value: 'Marketing & Communications',
-        label: 'Marketing & Communications',
-    },
+    { value: 'IT Infrastructure & Software', label: 'IT Infrastructure & Software' },
+    { value: 'Marketing & Communications', label: 'Marketing & Communications' },
     { value: 'Music', label: 'Music' },
     { value: 'Performing Arts', label: 'Performing Arts' },
     { value: 'Sports & Recreation', label: 'Sports & Recreation' },
-    {
-        value: 'Strategy Development & Business Planning',
-        label: 'Strategy Development & Business Planning',
-    },
+    { value: 'Strategy Development & Business Planning', label: 'Strategy Development & Business Planning' },
     { value: 'Trades', label: 'Trades' },
 ];
 
 const EventManage = () => {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        formState: { errors },
-    } = useForm();
-    const [selectedDate, setSelectedDate] = React.useState(null); // Only one date
-    const [submitError, setSubmitError] = React.useState(''); // Error state for submission
-    const [submitSuccess, setSubmitSuccess] = React.useState(''); // Success state for submission
-
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const [selectedDate, setSelectedDate] = React.useState(null);
+    const [submitError, setSubmitError] = React.useState('');
+    const [submitSuccess, setSubmitSuccess] = React.useState('');
     const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         try {
             data.skills = watch('skills');
-            data.date = selectedDate; // Save the single date
+            data.date = selectedDate;
 
-            // Send POST request to the backend
             const response = await fetch('http://localhost:5000/api/addEvent', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
 
@@ -97,140 +58,80 @@ const EventManage = () => {
             setSubmitError('');
             navigate("/events");
         } catch (error) {
-            console.error('Failed to submit event:', error);
             setSubmitError('Failed to submit event.');
         }
     };
 
     const handleDateChange = (date) => {
-        setSelectedDate(date); // Set a single date
+        setSelectedDate(date);
     };
 
     return (
-        <div className='w-full h-full flex flex-col items-center justify-center'>
-            <div className='text-4xl pb-10 font-bold'>Event Management</div>
-            <div>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Event Management</h2>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className='mb-4'>
-                        <label
-                            className='block text-gray-700 font-medium mb-2'
-                            htmlFor='name'
-                        >
-                            Event Name
-                        </label>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="name">Event Name</label>
                         <input
-                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                            id='name'
-                            type='text'
-                            {...register('name', {
-                                required: true,
-                                maxLength: {
-                                    value: 100,
-                                    message: 'Name cannot exceed 50 characters',
-                                },
-                            })}
+                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
+                            id="name"
+                            type="text"
+                            {...register('name', { required: true, maxLength: 100 })}
                         />
-                        {errors.name && (
-                            <p className='text-red-500 text-xs italic'>
-                                Name is required
-                            </p>
-                        )}
+                        {errors.name && <p className="text-red-500 text-xs italic">Name is required</p>}
                     </div>
-                    <div className='mb-4'>
-                        <label
-                            className='block text-gray-700 font-medium mb-2'
-                            htmlFor='eventDesc'
-                        >
-                            Event Description
-                        </label>
+                    
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="eventDesc">Event Description</label>
                         <textarea
-                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                            id='eventDesc'
+                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
+                            id="eventDesc"
                             rows={4}
                             {...register('eventDesc', { required: true })}
                         />
-                        {errors.eventDesc && (
-                            <p className='text-red-500 text-xs italic'>
-                                Description is required
-                            </p>
-                        )}
+                        {errors.eventDesc && <p className="text-red-500 text-xs italic">Description is required</p>}
                     </div>
-                    <div className='mb-4'>
-                        <label
-                            className='block text-gray-700 font-medium mb-2'
-                            htmlFor='location'
-                        >
-                            Location
-                        </label>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="location">Location</label>
                         <textarea
-                            className='appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500'
-                            id='location'
+                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
+                            id="location"
                             rows={2}
                             {...register('location', { required: true })}
                         />
-                        {errors.location && (
-                            <p className='text-red-500 text-xs italic'>
-                                Location is required.
-                            </p>
-                        )}
+                        {errors.location && <p className="text-red-500 text-xs italic">Location is required</p>}
                     </div>
-                    <div className='mb-4'>
-                        <label className='block text-gray-700 font-medium mb-2'>
-                            Skills
-                        </label>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2">Skills</label>
                         <Select
-                            name='skills'
+                            name="skills"
                             options={skillsOptions}
                             isMulti
-                            className='w-full'
-                            onChange={(options) =>
-                                setValue(
-                                    'skills',
-                                    options.map((option) => option.value)
-                                )
-                            }
+                            className="w-full"
+                            onChange={(options) => setValue('skills', options.map(option => option.value))}
                         />
-                        {errors.skills && (
-                            <p className='text-red-500 text-xs italic'>
-                                This field is required
-                            </p>
-                        )}
+                        {errors.skills && <p className="text-red-500 text-xs italic">This field is required</p>}
                     </div>
-                    <div className='mb-4'>
-                        <label className='block text-gray-700 font-medium mb-2'>
-                            Event Date
-                        </label>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2">Event Date</label>
                         <DatePicker
                             selected={selectedDate}
-                            onChange={handleDateChange} // Single date selection
-                            className='w-full border border-gray-400 rounded py-2 px-3 text-gray-700'
-                            placeholderText='Select event date'
+                            onChange={handleDateChange}
+                            className="w-full border border-gray-300 rounded py-2 px-3 text-gray-700"
+                            placeholderText="Select event date"
                         />
-                        {errors.date && (
-                            <p className='text-red-500 text-xs italic'>
-                                This field is required
-                            </p>
-                        )}
+                        {errors.date && <p className="text-red-500 text-xs italic">This field is required</p>}
                     </div>
-                    <button
-                        className='bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-                        type='submit'
-                    >
-                        Submit
-                    </button>
+
+                    <button className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring focus:ring-indigo-500" type="submit">Submit</button>
                 </form>
 
-                {/* Display success or error messages */}
-                {submitError && (
-                    <p className='text-red-500 text-xs italic mt-4'>
-                        {submitError}
-                    </p>
-                )}
-                {submitSuccess && (
-                    <p className='text-green-500 text-xs italic mt-4'>
-                        {submitSuccess}
-                    </p>
-                )}
+                {submitError && <p className="text-red-500 text-sm italic mt-4">{submitError}</p>}
+                {submitSuccess && <p className="text-green-500 text-sm italic mt-4">{submitSuccess}</p>}
             </div>
         </div>
     );
