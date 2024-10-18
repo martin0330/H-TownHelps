@@ -13,8 +13,9 @@ To install Project Title, follow these steps:
 1. Clone the repository: **`https://github.com/martin0330/H-TownHelps/`**
 2. Navigate to the project directory: **`cd H-TownHelps`**
 3. Install dependencies: **`npm install`**
-4. Build the project: **`npm run build`**
-5. Start the project: **`npm start`**
+4. Start Back-End: **`node index.js'** within backend folder
+5. Build the project: **`npm run build`**
+6. Start the project: **`npm start`**
 
 ## **Usage**
 
