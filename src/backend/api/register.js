@@ -1,4 +1,3 @@
-// backend/register.js
 const express = require('express');
 const mongoose = require('mongoose');
 const userProfile = require('../../schemas/userProfile');
@@ -17,19 +16,22 @@ router.post('/', async (req, res) => {
         const adminAccess = false;
 
         const newUserProfile = new userProfile({
-            _id: new mongoose.Types.ObjectId(),
             firstName,
             lastName,
             email,
-            password,
+            password, 
             gender,
             adminAccess,
+            skills: [],
+            availability: [],
+            profileComplete: false
         });
 
         await newUserProfile.save();
+
         return res
             .status(201)
-            .json({ message: 'User registered successfully' });
+            .json({ message: 'User registered successfully. Please complete your profile to be eligible for event selection.' });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });

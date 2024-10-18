@@ -1,7 +1,6 @@
-// backend/profile.js
 const express = require('express');
 const mongoose = require('mongoose');
-const profileInfo = require('../../schemas/profileInfo'); // Adjust the path as needed
+const ProfileInfo = require('../../schemas/profileInfo');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -20,9 +19,10 @@ router.post('/', async (req, res) => {
     console.log(req.body);
 
     try {
-        let existingUser = await profileInfo.findOne({ email: email });
-        if (existingUser) {
-            const result = await profileInfo.updateOne(
+        let user = await ProfileInfo.findOne({ email: email });
+        if (user) {
+            // Update existing user
+            await ProfileInfo.updateOne(
                 { email },
                 {
                     fullName,
@@ -34,14 +34,12 @@ router.post('/', async (req, res) => {
                     skills,
                     preferences,
                     availability,
+                    profileComplete: true,
                 }
             );
-            return res
-                .status(201)
-                .json({ message: 'User profile updated successfully' });
         } else {
-            const newProfileInfo = new profileInfo({
-                _id: new mongoose.Types.ObjectId(),
+            // Create new user
+            user = new ProfileInfo({
                 email,
                 fullName,
                 address1,
@@ -52,12 +50,15 @@ router.post('/', async (req, res) => {
                 skills,
                 preferences,
                 availability,
+                profileComplete: true,
             });
-            await newProfileInfo.save();
-            return res
-                .status(201)
-                .json({ message: 'User profile created successfully' });
+            await user.save();
         }
+
+        return res.status(201).json({ 
+            message: user ? 'User profile updated successfully' : 'User profile created successfully',
+            info: 'Profile completed. You may be selected for events based on your availability.'
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });
