@@ -21,7 +21,6 @@ function App() {
                 <nav className="bg-sky-950 text-white p-4 shadow-md">
                     <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center">
-                            {/* Logo or App Name */}
                             <div className="text-3xl font-bold font-quicksand">H-TownHelps</div>
 
                             {/* Hamburger Button for Mobile */}
@@ -124,7 +123,6 @@ function App() {
                 </nav>
             )}
 
-            {/* Render the rest of the page */}
             <Outlet />
         </>
     );

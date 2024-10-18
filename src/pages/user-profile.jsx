@@ -140,9 +140,9 @@ const UserProfile = () => {
     const [successMessage, setSuccessMessage] = useState(null);
 
     const onSubmit = async (data) => {
-        data.skills = watch('skills'); // Get skills from the form state
-        data.skills = data.skills.map( entry => entry.value)
-        data.state = data.state.value
+        data.skills = watch('skills');
+        data.skills = data.skills.map( entry => entry.value ); // save only the value of the entry
+        data.state = data.state.value; // save only the value of the entry
         data.availability = selectedDates;
         data.email = user.userEmail;
 
@@ -238,8 +238,8 @@ const UserProfile = () => {
                                 <Select
                                     options={states}
                                     {...field}
-                                    onChange={option => field.onChange(option)} // Correctly handle the change
-                                    defaultValue={field.value} // Set default value
+                                    onChange={option => field.onChange(option)}
+                                    defaultValue={field.value}
                                 />
                             )}
                         />
@@ -286,7 +286,7 @@ const UserProfile = () => {
                                 options={skillsOptions}
                                 isMulti
                                 {...field}
-                                onChange={option => field.onChange(option)} // Handle multi-selection correctly
+                                onChange={option => field.onChange(option)}
                                 defaultValue={field.value}
                             />
                         )}

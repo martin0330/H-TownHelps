@@ -22,11 +22,9 @@ root.render(
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={<App />}>
-                    <Route index element={<Login />} />{' '}
-                    {/* Login as the index page */}
+                    <Route index element={<Login />} />
                     <Route path='registration' element={<Registration />} />
                     <Route path='main' element={<MainPage />} />{' '}
-                    {/* Add the MainPage route */}
                     <Route path='userprofile' element={<UserProfile />} />
                     <Route path='events' element={<EventList />} />
                     <Route path='eventmanage' element={<EventManage />} />

@@ -1,3 +1,4 @@
+// backend/events/getEvents.js
 const express = require('express');
 const mongoose = require('mongoose');
 const Events = require('../../../schemas/events');
