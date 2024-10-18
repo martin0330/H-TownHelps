@@ -1,4 +1,3 @@
-// backend/register.js
 const express = require('express');
 const mongoose = require('mongoose');
 const userProfile = require('../../schemas/userProfile');

@@ -1,4 +1,3 @@
-// schemas/profileInfo.js
 const mongoose = require('mongoose');
 
 const profileInfoSchema = new mongoose.Schema(

@@ -11,7 +11,7 @@ const VolunteerMatchingForm = () => {
   useEffect(() => {
     const fetchMatches= async () => {
       if (!userProfile) {
-        setError("Please complete you profile first");
+        setError("Please complete your profile first");
         setLoading(false);
         return;
       }

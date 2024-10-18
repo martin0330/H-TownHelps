@@ -1,4 +1,3 @@
-// backend/profile.js
 const express = require('express');
 const mongoose = require('mongoose');
 const profileInfo = require('../../schemas/profileInfo'); // Adjust the path as needed
