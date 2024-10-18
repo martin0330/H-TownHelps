@@ -5,11 +5,14 @@ const VolunteerMatchingForm = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // New state for available volunteers
+  const [availableVolunteers, setAvailableVolunteers] = useState([]);
+  // New state for the selected volunteer
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const { userProfile } = useAuth();
 
-  // Simulating fetching data from a database
   useEffect(() => {
-    const fetchMatches= async () => {
+    const fetchMatches = async () => {
       if (!userProfile) {
         setError("Please complete your profile first");
         setLoading(false);
@@ -37,13 +40,56 @@ const VolunteerMatchingForm = () => {
         setLoading(false);
       }
     };
-    fetchMatches();  
+
+    // New function to fetch available volunteers
+    const fetchAvailableVolunteers = async () => {
+      try {
+        // Make a GET request to fetch available volunteers
+        const response = await fetch('http://localhost:5000/api/available-volunteers');
+        if (!response.ok) {
+          throw new Error('Failed to fetch available volunteers');
+        }
+        const data = await response.json();
+        // Set the fetched volunteers to the state
+        setAvailableVolunteers(data);
+      } catch (error) {
+        console.error('Error fetching available volunteers:', error);
+      }
+    };
+
+    fetchMatches();
+    // Call the new function to fetch available volunteers
+    fetchAvailableVolunteers();
   }, [userProfile]);
 
+  // Updated function to handle sending an event to a selected volunteer
   const handleConfirmMatch = async (matchId) => {
-    // Implement the logic to confirm a match
-    console.log(`Confirming match for event ${matchId}`);
-    // You can make an API call here to update the match status in the backend
+    // Check if a volunteer has been selected
+    if (!selectedVolunteer) {
+      alert('Please select a volunteer first');
+      return;
+    }
+    try {
+      // Make a POST request to send the event to the selected volunteer
+      const response = await fetch('http://localhost:5000/api/send-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ matchId, volunteerId: selectedVolunteer }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send event');
+      }
+
+      // Alert the user of success and reset the selected volunteer
+      alert('Event sent successfully to the volunteer!');
+      setSelectedVolunteer(null);
+    } catch (error) {
+      console.error('Error sending event:', error);
+      alert('Failed to send event. Please try again.');
+    }
   };
 
   if (loading) {
@@ -77,11 +123,34 @@ const VolunteerMatchingForm = () => {
                 <p>{match.description}</p>
               </div>
               <div className="mt-6">
+                {/* New dropdown for selecting a volunteer */}
+                <div className="relative inline-block text-left mb-4">
+                  <select
+                    value={selectedVolunteer}
+                    onChange={(e) => setSelectedVolunteer(e.target.value)}
+                    className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                  >
+                    <option value="">Select a volunteer</option>
+                    {/* Map through available volunteers to create options */}
+                    {availableVolunteers.map((volunteer) => (
+                      <option key={volunteer.id} value={volunteer.id}>
+                        {volunteer.name}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+                {/* Updated button text and onClick handler */}
                 <button 
                   onClick={() => handleConfirmMatch(match._id)}
                   className="px-6 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
                 >
-                  Confirm Match
+                  Send Event to Volunteer
                 </button>
               </div>
             </div>
