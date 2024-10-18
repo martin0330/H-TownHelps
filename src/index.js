@@ -11,6 +11,7 @@ import VolunteerHist from './pages/volunteer-hist';
 import NotFound from './pages/NotFound';
 import MainPage from './pages/main-page';
 import EventList from './pages/event-list';
+import EditEvent from './pages/edit-event';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/authContext';
 import VolunteerMatchingForm from './pages/volunteer-match';
@@ -21,14 +22,13 @@ root.render(
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={<App />}>
-                    <Route index element={<Login />} />{' '}
-                    {/* Login as the index page */}
+                    <Route index element={<Login />} />
                     <Route path='registration' element={<Registration />} />
                     <Route path='main' element={<MainPage />} />{' '}
-                    {/* Add the MainPage route */}
                     <Route path='userprofile' element={<UserProfile />} />
                     <Route path='events' element={<EventList />} />
                     <Route path='eventmanage' element={<EventManage />} />
+                    <Route path='editEvent/:id' element={<EditEvent />} />
                     <Route
                         path='volunteer-match'
                         element={<VolunteerMatchingForm />}

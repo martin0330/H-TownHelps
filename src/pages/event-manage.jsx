@@ -18,43 +18,14 @@ const skillsOptions = [
     { value: 'Engineering', label: 'Engineering' },
     { value: 'Finance', label: 'Finance' },
     { value: 'Food Service & Events', label: 'Food Service & Events' },
-    {
-        value: 'For Profit & Nonprofit Development',
-        label: 'For Profit & Nonprofit Development',
-    },
-    { value: 'HR', label: 'HR' },
-    {
-        value: 'Healthcare & Social Services',
-        label: 'Healthcare & Social Services',
-    },
-    { value: 'Hobbies & Crafts', label: 'Hobbies & Crafts' },
+    { value: 'Healthcare & Social Services', label: 'Healthcare & Social Services' },
     { value: 'Housing & Facilities', label: 'Housing & Facilities' },
-    {
-        value: 'IT Infrastructure & Software',
-        label: 'IT Infrastructure & Software',
-    },
-    {
-        value: 'Interactive & Web Development',
-        label: 'Interactive & Web Development',
-    },
-    { value: 'Interpersonal', label: 'Interpersonal' },
-    { value: 'Language & Culture', label: 'Language & Culture' },
-    { value: 'Legal & Advocacy', label: 'Legal & Advocacy' },
-    {
-        value: 'Logistics, Supply Chain & Transportation',
-        label: 'Logistics, Supply Chain & Transportation',
-    },
-    {
-        value: 'Marketing & Communications',
-        label: 'Marketing & Communications',
-    },
+    { value: 'IT Infrastructure & Software', label: 'IT Infrastructure & Software' },
+    { value: 'Marketing & Communications', label: 'Marketing & Communications' },
     { value: 'Music', label: 'Music' },
     { value: 'Performing Arts', label: 'Performing Arts' },
     { value: 'Sports & Recreation', label: 'Sports & Recreation' },
-    {
-        value: 'Strategy Development & Business Planning',
-        label: 'Strategy Development & Business Planning',
-    },
+    { value: 'Strategy Development & Business Planning', label: 'Strategy Development & Business Planning' },
     { value: 'Trades', label: 'Trades' },
 ];
 
@@ -85,24 +56,16 @@ const EventManage = () => {
             setSubmitError('Failed to fetch available users.');
         }
     };
-
     const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         try {
-<<<<<<< Updated upstream
             data.skills = watch('skills');
-            data.date = selectedDate; // Save the single date
+            data.date = selectedDate;
 
-            // Send POST request to the backend
-=======
-            data.date = data.date.toISOString();
->>>>>>> Stashed changes
             const response = await fetch('http://localhost:5000/api/addEvent', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
 
@@ -116,36 +79,35 @@ const EventManage = () => {
             setSubmitError('');
             navigate("/events");
         } catch (error) {
-            console.error('Failed to submit event:', error);
-            setSubmitError(error.message || 'Failed to submit event.');
+            setSubmitError('Failed to submit event.');
         }
     };
 
-    return (
-        <div className='w-full h-full flex flex-col items-center justify-center'>
-            <div className='text-4xl pb-10 font-bold'>Event Management</div>
-            <div className='w-full max-w-lg'>
-                <form onSubmit={handleSubmit(onSubmit)} className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
-                    <div className='mb-4'>
-                        <label className='block text-gray-700 font-bold mb-2' htmlFor='name'>
-                            Event Name
-                        </label>
-                        <input
-                            className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-                            id='name'
-                            type='text'
-                            {...register('name', { required: 'Event name is required', maxLength: { value: 100, message: 'Name cannot exceed 100 characters' } })}
-                        />
-                        {errors.name && <p className='text-red-500 text-xs italic'>{errors.name.message}</p>}
-                    </div>
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+    };
 
-                    <div className='mb-4'>
-                        <label className='block text-gray-700 font-bold mb-2' htmlFor='description'>
-                            Event Description
-                        </label>
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Event Management</h2>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="name">Event Name</label>
+                        <input
+                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
+                            id="name"
+                            type="text"
+                            {...register('name', { required: true, maxLength: 100 })}
+                        />
+                        {errors.name && <p className="text-red-500 text-xs italic">Name is required</p>}
+                    </div>
+                    
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="eventDesc">Event Description</label>
                         <textarea
-                            className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-                            id='description'
+                            className="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-indigo-500"
+                            id="eventDesc"
                             rows={4}
                             {...register('description', { required: 'Description is required' })}
                         />
