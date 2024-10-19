@@ -1,6 +1,5 @@
-// backend/events/getProfiles.js
+// backend/profile/getProfiles.js
 const express = require('express');
-const mongoose = require('mongoose');
 const profileInfo = require('../../../schemas/profileInfo');
 const router = express.Router();
 

@@ -4,17 +4,17 @@ import './index.css';
 import App from './App';
 import Login from './pages/login';
 import Registration from './pages/registration';
-import UserProfile from './pages/user-profile';
-import EventManage from './pages/event-manage';
-import NotificationSys from './pages/notification-sys';
-import VolunteerHist from './pages/volunteer-hist';
-import NotFound from './pages/NotFound';
-import MainPage from './pages/main-page';
-import EventList from './pages/event-list';
-import EditEvent from './pages/edit-event';
+import MainPage from './pages/mainPage';
+import UserProfile from './pages/userProfile';
+import EventManage from './pages/addEvent';
+import EventList from './pages/eventList';
+import EditEvent from './pages/editEvent';
+import NotificationSys from './pages/notifications';
+import VolunteerHist from './pages/volunteerHist';
+import VolunteerMatchingForm from './pages/volunteerMatch';
+import NotFound from './pages/notFound';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/authContext';
-import VolunteerMatchingForm from './pages/volunteer-match';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

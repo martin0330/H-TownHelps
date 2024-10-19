@@ -1,12 +1,10 @@
-// backend/autofillProfile.js
+// backend/profile/autofillProfile.js
 const express = require('express');
-const mongoose = require('mongoose');
 const profileInfo = require('../../../schemas/profileInfo');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
     const { email } = req.body;
-    console.log(req.body);
 
     try {
         const existingUser = await profileInfo.findOne({ email: email });

@@ -1,11 +1,10 @@
+// backend/register.js
 const express = require('express');
-const mongoose = require('mongoose');
 const userProfile = require('../../schemas/userProfile');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
     const { firstName, lastName, email, password, gender } = req.body;
-    console.log(req.body);
 
     try {
         let existingUser = await userProfile.findOne({ email: email });

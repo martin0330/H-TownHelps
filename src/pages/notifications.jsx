@@ -31,7 +31,6 @@ const NotificationPage = () => {
         <h2 className="text-2xl font-bold">Notifications</h2>
       </div>
 
-      {/* Notification List */}
       <div>
         {notifications.length > 0 ? (
           notifications.map((notification) => (

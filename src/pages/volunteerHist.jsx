@@ -60,7 +60,6 @@ const VolunteerHistory = () => {
 
   return (
     <div className="container mx-auto p-8 border-4 border-light-blue-500 rounded-lg">
-      {/* Black bar with white text */}
       <div className="bg-black text-white py-4 px-6 mb-8 rounded-lg">
         <h2 className="text-2xl font-bold">Volunteer History</h2>
       </div>

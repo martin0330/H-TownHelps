@@ -36,8 +36,6 @@ const Login = () => {
                 return;
             }
 
-            const result = await response.json();
-            console.log(result);
             setError(false);
             login({ userEmail: email });
             navigate("/main");
@@ -49,7 +47,6 @@ const Login = () => {
     }
 
     const onSubmit = (data) => {
-        console.log(data);
         SignIn(data);
     };
 

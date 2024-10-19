@@ -7,7 +7,7 @@ const cors = require('cors');
 // Apis
 const register = require('./api/register.js');
 const signin = require('./api/signin.js');
-const profile = require('./api/profile/profile.js');
+const profile = require('./api/profile/addProfile.js');
 const getProfiles = require('./api/profile/getProfiles.js');
 const adminAccess = require('./api/profile/adminAccess.js');
 const autofillProfile = require('./api/profile/autofillProfile.js');

@@ -1,13 +1,10 @@
 // backend/events/deleteEvents.js
 const express = require('express');
-const mongoose = require('mongoose');
 const Events = require('../../../schemas/events');
 const router = express.Router();
 
 router.delete('/', async (req, res) => {
     const { eventId } = req.body;
-    console.log("in delete event");
-    console.log(req.body);
     try {
         const deletedEvent = await Events.findByIdAndDelete(eventId);
 

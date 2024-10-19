@@ -1,3 +1,4 @@
+// backend/events/getEvent.js
 const express = require('express');
 const router = express.Router();
 const Events = require('../../../schemas/events');

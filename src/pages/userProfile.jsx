@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -94,8 +93,7 @@ const skillsOptions = [
 const UserProfile = () => {
     const { control, register, handleSubmit, setValue, watch, formState: { errors } } = useForm({criteriaMode: "all"});
     const [selectedDates, setSelectedDates] = useState([]);
-    const { user, setUserProfile } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
 
@@ -172,34 +170,9 @@ const UserProfile = () => {
             const result = await response.json();
             setSuccessMessage(result.message);
             setError(null);
-            setUserProfile(data);
-            await triggerMatching(user.userEmail);
         } catch (err) {
             console.error(err);
             setError(err.message || 'An error occurred. Please try again.');
-        }
-    };
-
-    const triggerMatching = async (email) => {
-        try {
-            const response = await fetch('http://localhost:5000/api/trigger-matching', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to trigger matching process');
-            }
-
-            const result = await response.json();
-            setSuccessMessage(result.message);
-            navigate('/main-page');
-        } catch (error) {
-            console.error('Error triggering matching:', error);
-            setError('Failed to start matching process. Please try again.');
         }
     };
 

@@ -1,5 +1,5 @@
+// backend/profile/addProfile.js
 const express = require('express');
-const mongoose = require('mongoose');
 const ProfileInfo = require('../../../schemas/profileInfo');
 const router = express.Router();
 
@@ -16,7 +16,6 @@ router.post('/', async (req, res) => {
         preferences,
         availability,
     } = req.body;
-    console.log(req.body);
 
     try {
         let user = await ProfileInfo.findOne({ email: email });
