@@ -12,7 +12,7 @@ import EditEvent from './pages/editEvent';
 import NotificationSys from './pages/notifications';
 import VolunteerHist from './pages/volunteerHist';
 import VolunteerMatchingForm from './pages/volunteerMatch';
-import NotFound from './pages/notFound';
+import NotFound from './pages/NotFound';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/authContext';
 

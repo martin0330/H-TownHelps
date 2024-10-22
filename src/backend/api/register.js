@@ -15,26 +15,28 @@ router.post('/', async (req, res) => {
 
         const adminAccess = false;
 
-        const salt = await bcrypt.genSalt();
+        // Correct way to generate salt and hash the password
+        const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUserProfile = new userProfile({
             firstName,
             lastName,
             email,
-            hashedPassword, 
+            password: hashedPassword,
             gender,
             adminAccess,
             skills: [],
             availability: [],
-            profileComplete: false
+            profileComplete: false,
         });
 
         await newUserProfile.save();
 
-        return res
-            .status(201)
-            .json({ message: 'User registered successfully. Please complete your profile to be eligible for event selection.' });
+        return res.status(201).json({
+            message:
+                'User registered successfully. Please complete your profile to be eligible for event selection.',
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });
