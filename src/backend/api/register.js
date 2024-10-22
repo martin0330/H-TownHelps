@@ -2,6 +2,7 @@
 const express = require('express');
 const userProfile = require('../../schemas/userProfile');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 router.post('/', async (req, res) => {
     const { firstName, lastName, email, password, gender } = req.body;
@@ -14,11 +15,14 @@ router.post('/', async (req, res) => {
 
         const adminAccess = false;
 
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const newUserProfile = new userProfile({
             firstName,
             lastName,
             email,
-            password, 
+            hashedPassword, 
             gender,
             adminAccess,
             skills: [],

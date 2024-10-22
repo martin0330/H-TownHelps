@@ -2,6 +2,7 @@
 const express = require('express');
 const userProfile = require('../../schemas/userProfile');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 router.post('/', async (req, res) => {
     const { email, password } = req.body;
@@ -14,7 +15,10 @@ router.post('/', async (req, res) => {
                 .json({ error: 'This email is not registered' });
         }
 
-        if (password !== existingUser.password) {
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        if (hashedPassword !== existingUser.password) {
             return res.status(400).json({ error: 'Incorrect password' });
         }
         return res.status(201).json({ message: 'User logged in successfully' });
