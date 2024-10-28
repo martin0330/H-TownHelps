@@ -3,6 +3,7 @@ import { useAuth } from '../components/authContext';
 
 const NotificationPage = () => {
     const [notifications, setNotifications] = useState([]);
+    const [error, setError] = useState('');
     const { user } = useAuth();
 
     useEffect(() => {
@@ -26,6 +27,7 @@ const NotificationPage = () => {
                     setNotifications(sortedNotifications); // Set the sorted notifications
                 } else {
                     setError(data.error); // Handle the error response
+                    console.log(data.error);
                 }
             } catch (err) {
                 console.error(err);

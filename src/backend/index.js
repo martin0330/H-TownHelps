@@ -16,6 +16,7 @@ const getEvent = require('./api/events/getEvent.js');
 const addEvent = require('./api/events/addEvent.js');
 const deleteEvent = require('./api/events/deleteEvent.js');
 const updateEvent = require('./api/events/updateEvent.js');
+const getNotifs = require('./api/notifications/getNotif.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,6 +48,7 @@ app.use('/api/getEvent', getEvent);
 app.use('/api/addEvent', addEvent);
 app.use('/api/deleteEvent', deleteEvent);
 app.use('/api/updateEvent', updateEvent);
+app.use('/api/getNotifications', getNotifs);
 
 // Start server
 app.listen(PORT, () => {

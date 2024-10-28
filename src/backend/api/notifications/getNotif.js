@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
         if (!userNotif || !userNotif.notificationList.length) {
             return res
                 .status(400)
-                .json({ error: 'No events have been created yet' });
+                .json({ error: 'No notifications for this user' });
         }
         return res.status(200).json(userNotif.notificationList); // Send the notifications as response
     } catch (error) {
