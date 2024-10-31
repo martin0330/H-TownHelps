@@ -113,6 +113,22 @@ const VolunteerMatchingForm = () => {
         }
     };
 
+    // Helper function to send history
+    const sendHistory = async (email, eventName) => {
+        try {
+            await fetch('http://localhost:5000/api/sendHistory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    message: `Added to ${eventName} event!`,
+                }),
+            });
+        } catch (error) {
+            console.error('Error sending history:', error);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -127,6 +143,7 @@ const VolunteerMatchingForm = () => {
                 );
                 if (person) {
                     await sendNotification(person.email, eventName);
+                    await sendHistory(person.email, eventName);
                 }
             }
         }
