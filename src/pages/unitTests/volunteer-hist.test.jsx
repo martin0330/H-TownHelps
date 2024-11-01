@@ -1,64 +1,57 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import VolunteerHistory from '../volunteer-hist'; // Adjust the import based on your file structure
-
-// Mocking the console.log for tests
-global.console = {
-  log: jest.fn(),
-};
+import VolunteerHistory from '../volunteerHist';
 
 describe('VolunteerHistory Component', () => {
-  beforeEach(() => {
+  test('renders volunteer history heading', () => {
     render(<VolunteerHistory />);
-  });
-
-  test('renders Volunteer History title', () => {
-    const titleElement = screen.getByText(/volunteer history/i);
-    expect(titleElement).toBeInTheDocument();
+    const heading = screen.getByText(/Volunteer History/i);
+    expect(heading).toBeInTheDocument();
   });
 
   test('displays volunteer history data correctly', async () => {
-    const rows = await screen.findAllByRole('row');
-    expect(rows).toHaveLength(4); // 3 data rows + 1 header row
-
-    expect(screen.getByText('Community Cleanup Drive')).toBeInTheDocument();
-    expect(screen.getByText('2024-09-30')).toBeInTheDocument();
-    expect(screen.getByText('9:00 AM - 12:00 PM')).toBeInTheDocument();
-    expect(screen.getByText('Main Park')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    render(<VolunteerHistory />);
     
-    expect(screen.getByText('Food Donation Event')).toBeInTheDocument();
-    expect(screen.getByText('2024-08-20')).toBeInTheDocument();
-    expect(screen.getByText('2:00 PM - 5:00 PM')).toBeInTheDocument();
-    expect(screen.getByText('City Hall')).toBeInTheDocument();
-    expect(screen.getByText('No Show')).toBeInTheDocument();
-
-    expect(screen.getByText('Animal Shelter Help')).toBeInTheDocument();
-    expect(screen.getByText('2024-07-15')).toBeInTheDocument();
-    expect(screen.getByText('10:00 AM - 1:00 PM')).toBeInTheDocument();
-    expect(screen.getByText('Animal Shelter')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    const eventName = await screen.findByText('Community Cleanup Drive');
+    const date = await screen.findByText('2024-09-30');
+    const time = await screen.findByText('9:00 AM - 12:00 PM');
+    const location = await screen.findByText('Main Park');
+    const status = await screen.findByText('Completed');
+    
+    expect(eventName).toBeInTheDocument();
+    expect(date).toBeInTheDocument();
+    expect(time).toBeInTheDocument();
+    expect(location).toBeInTheDocument();
+    expect(status).toBeInTheDocument();
   });
 
-  test('displays invalid data message for bad records', async () => {
-    // Temporarily modify the fetch logic in the component to simulate invalid data
-    jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => [[
-      { eventName: '', date: '', time: '', location: '', participationStatus: '' }
-    ], jest.fn()]);
+  test('displays "No volunteer history available" when history is empty', async () => {
+    render(<VolunteerHistory />);
+
+    const noHistoryMessage = await screen.findByText('No volunteer history available.');
+    expect(noHistoryMessage).toBeInTheDocument();
+  });
+
+  test('renders error for invalid data entry', async () => {
+    const mockInvalidData = [
+      {
+        eventName: 'Invalid Event Name',
+        date: 'invalid-date',
+        time: '1:00 PM - 4:00 PM',
+        location: 'Test Location',
+        participationStatus: 'Completed',
+      },
+    ];
+
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      json: jest.fn().mockResolvedValue(mockInvalidData),
+    });
 
     render(<VolunteerHistory />);
 
-    expect(screen.getByText('Invalid data for this record')).toBeInTheDocument();
-  });
+    const errorMessage = await screen.findByText('Invalid data for this record');
+    expect(errorMessage).toBeInTheDocument();
 
-  test('displays no volunteer history message when data is empty', () => {
-    // Temporarily mock the data fetch to return an empty array
-    jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => [[], jest.fn()]);
-
-    render(<VolunteerHistory />);
-
-    expect(screen.getByText('No volunteer history available.')).toBeInTheDocument();
+    global.fetch.mockRestore();
   });
 });

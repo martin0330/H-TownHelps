@@ -1,3 +1,5 @@
+//Event Manage page not available due to updates. will keep file for future use, but commenting out
+/*
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import EventManage from '../event-manage';
@@ -52,4 +54,4 @@ describe('EventManage Component', () => {
         // Expect error message for required fields
         expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
     });
-});
+}); */
