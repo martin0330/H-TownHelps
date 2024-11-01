@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/authContext';
 import Login from '../login';
 
@@ -9,12 +9,20 @@ jest.mock('../../components/authContext', () => ({
     useAuth: jest.fn(),
 }));
 
+// Mock the useNavigate hook
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: jest.fn(),
+}));
+
 describe('Login Component', () => {
   const mockLogin = jest.fn();
+  const mockNavigate = jest.fn();
 
   beforeEach(() => {
       // Set up mock implementations
       useAuth.mockReturnValue({ login: mockLogin });
+      useNavigate.mockReturnValue(mockNavigate);
   });
 
   afterEach(() => {
