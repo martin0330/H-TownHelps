@@ -60,8 +60,8 @@ const Registration = () => {
                                 First Name
                             </label>
                             <input
-                                id="first"
-                                name="first"
+                                id="firstName"
+                                name="firstName"
                                 type="text"
                                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 {...register('firstName')}
@@ -74,8 +74,8 @@ const Registration = () => {
                                 Last Name
                             </label>
                             <input
-                                id="last"
-                                name="last"
+                                id="lastName"
+                                name="lastName"
                                 type="text"
                                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 {...register('lastName')}
@@ -106,6 +106,7 @@ const Registration = () => {
                                 id="password"
                                 name="password"
                                 type="password"
+                                aria-label="Password"
                                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 {...register('password')}
                                 pattern="^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9])\S{8,}$"
@@ -122,6 +123,7 @@ const Registration = () => {
                                 id="repassword"
                                 name="repassword"
                                 type="password"
+                                aria-label="Confirm Password"
                                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 {...register('repassword')}
                                 required
@@ -153,7 +155,7 @@ const Registration = () => {
                                 Submit
                             </button>
                             <p className="mt-2 text-center text-sm text-gray-600">
-                                Already have an account?{' '}
+                                Already have an account?
                                 <Link to="/" className="font-medium text-indigo-600 hover:text-indigo-500">
                                     Sign in here
                                 </Link>

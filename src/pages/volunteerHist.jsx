@@ -51,75 +51,40 @@ const VolunteerHistory = () => {
             <div className='bg-black text-white py-4 px-6 mb-8 rounded-lg'>
                 <h2 className='text-2xl font-bold'>Volunteer History</h2>
             </div>
-
+    
             {error ? (
                 <p className='text-red-500 text-center'>{error}</p>
+            ) : volunteerHistory.length === 0 ? (
+                <p className='text-gray-500 text-center'>No volunteer history available.</p>
             ) : (
                 <div className='overflow-x-auto'>
                     <table className='min-w-full bg-white shadow-md rounded-lg border border-blue-300'>
                         <thead>
                             <tr className='bg-gray-200 text-gray-600 uppercase text-sm leading-normal'>
-                                <th className='py-3 px-6 text-left border-b border-blue-300'>
-                                    Event Name
-                                </th>
-                                <th className='py-3 px-6 text-left border-b border-blue-300'>
-                                    Date
-                                </th>
-                                <th className='py-3 px-6 text-left border-b border-blue-300'>
-                                    Time
-                                </th>
-                                <th className='py-3 px-6 text-left border-b border-blue-300'>
-                                    Location
-                                </th>
-                                <th className='py-3 px-6 text-left border-b border-blue-300'>
-                                    Participation Status
-                                </th>
+                                <th className='py-3 px-6 text-left border-b border-blue-300'>Event Name</th>
+                                <th className='py-3 px-6 text-left border-b border-blue-300'>Date</th>
+                                <th className='py-3 px-6 text-left border-b border-blue-300'>Time</th>
+                                <th className='py-3 px-6 text-left border-b border-blue-300'>Location</th>
+                                <th className='py-3 px-6 text-left border-b border-blue-300'>Participation Status</th>
                             </tr>
                         </thead>
                         <tbody className='text-gray-700 text-sm'>
-                            {volunteerHistory.length > 0 ? (
-                                volunteerHistory.map((history, index) =>
-                                    validateFields(history) ? (
-                                        <tr
-                                            key={index}
-                                            className='border-b border-blue-300 hover:bg-gray-100'
-                                        >
-                                            <td className='py-3 px-6 text-left'>
-                                                {history.eventName}
-                                            </td>
-                                            <td className='py-3 px-6 text-left'>
-                                                {history.date}
-                                            </td>
-                                            <td className='py-3 px-6 text-left'>
-                                                {history.time}
-                                            </td>
-                                            <td className='py-3 px-6 text-left'>
-                                                {history.location}
-                                            </td>
-                                            <td className='py-3 px-6 text-left'>
-                                                {history.participationStatus}
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        <tr key={index} className='bg-red-100'>
-                                            <td
-                                                colSpan='5'
-                                                className='py-3 px-6 text-center text-red-500'
-                                            >
-                                                Invalid data for this record
-                                            </td>
-                                        </tr>
-                                    )
+                            {volunteerHistory.map((history, index) =>
+                                validateFields(history) ? (
+                                    <tr key={index} className='border-b border-blue-300 hover:bg-gray-100'>
+                                        <td className='py-3 px-6 text-left'>{history.eventName}</td>
+                                        <td className='py-3 px-6 text-left'>{history.date}</td>
+                                        <td className='py-3 px-6 text-left'>{history.time}</td>
+                                        <td className='py-3 px-6 text-left'>{history.location}</td>
+                                        <td className='py-3 px-6 text-left'>{history.participationStatus}</td>
+                                    </tr>
+                                ) : (
+                                    <tr key={index} className='bg-red-100'>
+                                        <td colSpan='5' className='py-3 px-6 text-center text-red-500'>
+                                            Invalid data for this record
+                                        </td>
+                                    </tr>
                                 )
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan='5'
-                                        className='py-3 px-6 text-center'
-                                    >
-                                        No volunteer history available.
-                                    </td>
-                                </tr>
                             )}
                         </tbody>
                     </table>
