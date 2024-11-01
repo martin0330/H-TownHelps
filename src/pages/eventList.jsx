@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../components/authContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { CiEdit } from "react-icons/ci";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 const EventList = () => {
     const { user } = useAuth(); // Assuming user.UserEmail is available here
@@ -118,8 +120,28 @@ const EventList = () => {
                         {events.map((event) => (
                             <li
                                 key={event._id}
-                                className='p-4 border border-gray-200 rounded-lg shadow hover:shadow-lg hover:scale-[102%] transition duration-300'
+                                className='p-4 border border-gray-200 relative rounded-lg shadow hover:shadow-lg hover:scale-[102%] transition duration-300'
                             >
+                                {adminAccess && (
+                                    <div className='flex gap-0 space-x-2 absolute top-4 right-4 '>
+                                        <button
+                                            className='font-medium px-1 rounded hover:bg-amber-500 hover:shadow-lg hover:scale-[102%] transition duration-300'
+                                            onClick={() =>
+                                                handleEdit(event._id)
+                                            }
+                                        >
+                                            <CiEdit size={28} />
+                                        </button>
+                                        <button
+                                            className='hover:bg-red-800 text-white font-medium px-2 rounded focus:outline-none focus:shadow-outline duration-300'
+                                            onClick={() =>
+                                                handleDelete(event._id)
+                                            }
+                                        >
+                                            <FaRegTrashAlt size={20} color='black' />
+                                        </button>
+                                    </div>
+                                )}
                                 <h3 className='text-xl font-semibold text-gray-700'>
                                     {event.name}
                                 </h3>
@@ -139,28 +161,6 @@ const EventList = () => {
                                 <p className='text-gray-500 mt-2'>
                                     People: {event.people.join(', ')}
                                 </p>
-
-                                {/* Conditionally render admin buttons */}
-                                {adminAccess && (
-                                    <div className='flex space-x-4 mt-4'>
-                                        <button
-                                            className='bg-red-600 hover:bg-red-800 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline duration-300'
-                                            onClick={() =>
-                                                handleDelete(event._id)
-                                            }
-                                        >
-                                            Delete Event
-                                        </button>
-                                        <button
-                                            className='bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline duration-300'
-                                            onClick={() =>
-                                                handleEdit(event._id)
-                                            }
-                                        >
-                                            Edit Event
-                                        </button>
-                                    </div>
-                                )}
                             </li>
                         ))}
                     </ul>

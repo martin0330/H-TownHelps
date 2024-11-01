@@ -2,6 +2,7 @@
 const express = require('express');
 const userProfile = require('../../schemas/userProfile');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 router.post('/', async (req, res) => {
     const { email, password } = req.body;
@@ -14,10 +15,19 @@ router.post('/', async (req, res) => {
                 .json({ error: 'This email is not registered' });
         }
 
-        if (password !== existingUser.password) {
+        // Corrected logic for password comparison
+        const passwordCompare = await bcrypt.compare(
+            password,
+            existingUser.password
+        );
+
+        // If the password doesn't match
+        if (!passwordCompare) {
             return res.status(400).json({ error: 'Incorrect password' });
         }
-        return res.status(201).json({ message: 'User logged in successfully' });
+
+        // If the password matches
+        return res.status(200).json({ message: 'User logged in successfully' });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });
