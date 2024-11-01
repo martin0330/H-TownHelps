@@ -129,6 +129,7 @@ const EventList = () => {
                                             onClick={() =>
                                                 handleEdit(event._id)
                                             }
+                                            aria-label="edit event"
                                         >
                                             <CiEdit size={28} />
                                         </button>
@@ -137,6 +138,7 @@ const EventList = () => {
                                             onClick={() =>
                                                 handleDelete(event._id)
                                             }
+                                            aria-label="delete event"
                                         >
                                             <FaRegTrashAlt size={20} color='black' />
                                         </button>

@@ -1,4 +1,3 @@
-// EventList.test.jsx
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -44,9 +43,9 @@ describe('EventList Component', () => {
 
         renderWithRouter(<EventList />);
 
-        await waitFor(() => expect(screen.getByText('Event List')).toBeInTheDocument());
-        expect(screen.getByText('Sample Event')).toBeInTheDocument();
-        expect(screen.getByText('This is a sample event.')).toBeInTheDocument();
+        expect(await screen.findByText('Event List')).toBeInTheDocument();
+        expect(await screen.findByText('Sample Event')).toBeInTheDocument();
+        expect(await screen.findByText('This is a sample event.')).toBeInTheDocument();
     });
 
     test('displays error message on fetch failure', async () => {
@@ -62,7 +61,7 @@ describe('EventList Component', () => {
 
         renderWithRouter(<EventList />);
 
-        await waitFor(() => expect(screen.getByText('Failed to fetch events')).toBeInTheDocument());
+        expect(await screen.findByText('Failed to fetch events')).toBeInTheDocument();
     });
 
     test('shows Add Event button for admin access', async () => {
@@ -88,7 +87,7 @@ describe('EventList Component', () => {
 
         renderWithRouter(<EventList />);
 
-        await waitFor(() => expect(screen.getByText('Add Event')).toBeInTheDocument());
+        expect(await screen.findByText('Add Event')).toBeInTheDocument();
     });
 
     test('allows admin to delete an event', async () => {
@@ -118,9 +117,9 @@ describe('EventList Component', () => {
 
         renderWithRouter(<EventList />);
 
-        await waitFor(() => expect(screen.getByText('Delete Event')).toBeInTheDocument());
+        expect(await screen.findByRole('button', { name: /delete event/i })).toBeInTheDocument();
 
-        fireEvent.click(screen.getByText('Delete Event'));
+        fireEvent.click(screen.getByRole('button', { name: /delete event/i }));
         await waitFor(() => expect(screen.queryByText('Sample Event')).not.toBeInTheDocument());
     });
 
@@ -147,7 +146,7 @@ describe('EventList Component', () => {
 
         renderWithRouter(<EventList />);
         
-        const editButton = await screen.findByText('Edit Event');
+        const editButton = await screen.findByRole('button', { name: /edit event/i });
         fireEvent.click(editButton);
 
         expect(screen.getByText('Event List')).toBeInTheDocument();  // Check if on EventList page
