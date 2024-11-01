@@ -1,11 +1,13 @@
+// NotificationPage.test.jsx
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import NotificationPage from '../notification-sys';
+import NotificationPage from '../notifications' ;
 
-describe('NotificationPage component', () => {
-  test('renders the notifications list', () => {
+describe('NotificationPage', () => {
+  test('renders notification messages', () => {
     render(<NotificationPage />);
 
-    // Check if notifications are displayed
+    // Check for the presence of all notifications
     expect(screen.getByText('Reminder: Community Cleanup Drive on Sep 30, 2024')).toBeInTheDocument();
     expect(screen.getByText('Reminder: Food Donation Event on Aug 20, 2024')).toBeInTheDocument();
     expect(screen.getByText('Reminder: Animal Shelter Help on Jul 15, 2024')).toBeInTheDocument();
@@ -17,26 +19,24 @@ describe('NotificationPage component', () => {
   test('dismisses a notification when the dismiss button is clicked', () => {
     render(<NotificationPage />);
 
-    // Initial check: Ensure the first notification exists
-    const firstNotification = screen.getByText('Reminder: Community Cleanup Drive on Sep 30, 2024');
-    expect(firstNotification).toBeInTheDocument();
+    // Find the dismiss button for the first notification
+    const dismissButton = screen.getAllByRole('button', { name: /×/ })[0];
 
-    // Find and click the dismiss button for the first notification
-    const dismissButton = screen.getAllByText('×')[0]; // get the first dismiss button
+    // Click the dismiss button
     fireEvent.click(dismissButton);
 
-    // After dismiss, the first notification should be removed
-    expect(firstNotification).not.toBeInTheDocument();
+    // Check that the first notification is no longer in the document
+    expect(screen.queryByText('Reminder: Community Cleanup Drive on Sep 30, 2024')).not.toBeInTheDocument();
   });
 
-  test('displays no notifications available message when all notifications are dismissed', () => {
+  test('displays "No notifications available" when notifications list is empty', () => {
     render(<NotificationPage />);
 
     // Dismiss all notifications
-    const dismissButtons = screen.getAllByText('×');
+    const dismissButtons = screen.getAllByRole('button', { name: /×/ });
     dismissButtons.forEach(button => fireEvent.click(button));
 
-    // Check if the "No notifications available" message is displayed
+    // Check for the no notifications message
     expect(screen.getByText('No notifications available.')).toBeInTheDocument();
   });
 });

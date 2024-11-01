@@ -1,114 +1,101 @@
-// Login.test.js
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { useAuth } from '../../components/authContext';
 import Login from '../login';
 
-// Mocking the useNavigate hook from react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
+// Mock the useAuth hook
+jest.mock('../../components/authContext', () => ({
+    useAuth: jest.fn(),
 }));
 
-const mockedUseNavigate = require('react-router-dom').useNavigate;
-
 describe('Login Component', () => {
+  const mockLogin = jest.fn();
+
   beforeEach(() => {
-    mockedUseNavigate.mockReset();  // Ensure the mock is cleared before each test
+      // Set up mock implementations
+      useAuth.mockReturnValue({ login: mockLogin });
   });
 
-  // Test 1: Renders login form
-  test('renders the login form with email, password, and submit button', () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
-
-    // Check if email input is rendered
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    
-    // Check if password input is rendered
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
-    
-    // Check if submit button is rendered
-    expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
+  afterEach(() => {
+      jest.clearAllMocks();
   });
 
-  // Test 2: Displays validation error when email is missing
-  test('shows validation error when email is missing', async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+  test('renders login form with email, password fields and submit button', () => {
+      render(
+          <MemoryRouter>
+              <Login />
+          </MemoryRouter>
+      );
 
-    // Click submit without entering email or password
-    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
-
-    // Check for validation error for email
-    expect(await screen.findByText(/Email is required/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  // Test 3: Displays validation error when password is missing
-  test('shows validation error when password is missing', async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+  test('displays required error when form fields are empty', async () => {
+      render(
+          <MemoryRouter>
+              <Login />
+          </MemoryRouter>
+      );
 
-    // Enter email but no password
-    fireEvent.input(screen.getByLabelText(/Email/i), {
-      target: { value: 'johndoe@example.com' },
-    });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
-
-    // Check for validation error for password
-    expect(await screen.findByText(/Password is required/i)).toBeInTheDocument();
+      expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
+      expect(await screen.findByText(/password is required/i)).toBeInTheDocument();
   });
 
-  // Test 4: Submits form successfully and navigates to /main
-  test('submits form with valid data and navigates to /main', async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+  test('displays error message on failed login', async () => {
+      // Mock the fetch function to simulate a failed login response
+      global.fetch = jest.fn(() =>
+          Promise.resolve({
+              ok: false,
+              json: () => Promise.resolve({ error: 'Invalid credentials' }),
+          })
+      );
 
-    // Fill in email and password
-    fireEvent.input(screen.getByLabelText(/Email/i), {
-      target: { value: 'johndoe@example.com' },
-    });
+      render(
+          <MemoryRouter>
+              <Login />
+          </MemoryRouter>
+      );
 
-    fireEvent.input(screen.getByLabelText(/Password/i), {
-      target: { value: 'password123' },
-    });
+      fireEvent.change(screen.getByLabelText(/email address/i), {
+          target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByLabelText(/password/i), {
+          target: { value: 'password123' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    // Click submit
-    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
-
-    // Check if useNavigate was called with the correct path
-    expect(mockedUseNavigate).toHaveBeenCalledWith('/main');
+      expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
   });
 
-  // Test 5: Sign up link directs to the registration page
-  test('has a sign-up link that navigates to registration page', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/registration" element={<div>Registration Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+  test('calls login and navigates on successful login', async () => {
+      // Mock the fetch function to simulate a successful login response
+      global.fetch = jest.fn(() =>
+          Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({}),
+          })
+      );
 
-    // Click the sign-up link
-    fireEvent.click(screen.getByText(/Sign up here!/i));
+      render(
+          <MemoryRouter>
+              <Login />
+          </MemoryRouter>
+      );
 
-    // Verify that the path has changed to /registration
-    expect(screen.getByText(/Registration Page/i)).toBeInTheDocument();
+      fireEvent.change(screen.getByLabelText(/email address/i), {
+          target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByLabelText(/password/i), {
+          target: { value: 'password123' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+      await waitFor(() => expect(mockLogin).toHaveBeenCalledWith({ userEmail: 'test@example.com' }));
+      expect(mockNavigate).toHaveBeenCalledWith('/main');
   });
 });

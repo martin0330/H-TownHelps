@@ -1,82 +1,96 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-import UserProfile from '../user-profile';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import UserProfile from '../userProfile';
+import { useAuth } from '../../components/authContext';
+import fetchMock from 'jest-fetch-mock';
 
+jest.mock('../../components/authContext', () => ({
+  useAuth: jest.fn(),
+}));
+
+beforeEach(() => {
+  fetchMock.resetMocks();
+  useAuth.mockReturnValue({ user: { userEmail: 'test@example.com' } });
+});
 
 describe('UserProfile Component', () => {
-    test('renders form fields correctly', () => {
-        render(<UserProfile />);
+  
+  test('renders the form fields', () => {
+    render(<UserProfile />);
 
-        // Check if the required form fields are present
-        expect(screen.getByLabelText(/Full Name/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Address 1/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Zip Code/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Skills/i)).toBeInTheDocument();
+    // Check if input fields are in the document
+    expect(screen.getByLabelText(/Full Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 1/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Zip Code/i)).toBeInTheDocument();
+  });
+
+  test('displays an error if required fields are empty on submit', async () => {
+    render(<UserProfile />);
+
+    const submitButton = screen.getByText(/Save Profile/i);
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('This field is required')).toBeInTheDocument();
     });
+  });
 
-    test('renders error messages when required fields are empty', async () => {
-        render(<UserProfile />);
-    
-        // Find the submit button
-        const submitButton = screen.getByRole('button', { name: /submit/i });
-        
-        // Click the submit button
-        fireEvent.click(submitButton);
-    
-        // Check for required error messages
-        const errorMessages = await screen.findAllByText(/this field is required/i);
-        
-        // Assert that the correct number of error messages are rendered
-        expect(errorMessages.length).toBe(4); 
+  test('fetches and autofills user data', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({
+      fullName: 'John Doe',
+      address1: '123 Main St',
+      address2: '',
+      city: 'Test City',
+      zipCode: '12345',
+      state: 'CA',
+      skills: ['IT Infrastructure & Software', 'Engineering'],
+      availability: ['2024-11-01', '2024-11-10']
+    }));
+
+    render(<UserProfile />);
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('123 Main St')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Test City')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('12345')).toBeInTheDocument();
     });
+  });
 
-    test('fills and submits form without validation errors', async () => {
-        const { getByLabelText, getByRole, queryByText } = render(<UserProfile />);
+  test('submits data successfully', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ message: 'Profile saved successfully!' }));
 
-        // Fill out the form fields
-        fireEvent.change(getByLabelText(/Full Name/i), { target: { value: 'John Doe' } });
-        fireEvent.change(getByLabelText(/Address 1/i), { target: { value: '123 Main St' } });
-        fireEvent.change(getByLabelText(/City/i), { target: { value: 'New York' } });
-        fireEvent.change(getByLabelText(/Zip Code/i), { target: { value: '10001' } });
+    render(<UserProfile />);
 
-        // Simulate form submission
-        fireEvent.click(getByRole('button', { name: /Submit/i }));
+    // Fill in required fields
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: 'John Doe' } });
+    fireEvent.change(screen.getByLabelText(/Address 1/i), { target: { value: '123 Main St' } });
+    fireEvent.change(screen.getByLabelText(/City/i), { target: { value: 'Test City' } });
+    fireEvent.change(screen.getByLabelText(/Zip Code/i), { target: { value: '12345' } });
 
-        // No validation errors should appear
-        expect(queryByText(/This field is required/i)).not.toBeInTheDocument();
+    // Select a state
+    fireEvent.change(screen.getByLabelText(/State/i), { target: { value: 'CA' } });
+
+    // Select Skills
+    fireEvent.change(screen.getByLabelText(/Skills/i), { target: { value: 'IT Infrastructure & Software' } });
+
+    // Submit the form
+    fireEvent.click(screen.getByText(/Save Profile/i));
+
+    await waitFor(() => {
+      expect(screen.getByText('Profile saved successfully!')).toBeInTheDocument();
     });
+  });
 
-    test('renders state label and Select', () => {
-        render(<UserProfile />);
-        
-        // Check if the state label is in the document
-        const stateLabel = screen.getByLabelText(/state/i);
-        expect(stateLabel).toBeInTheDocument();
-    
-        // Optionally check if the Select component is present
-        const stateSelect = screen.getByRole('combobox', { name: /state/i }); // 'combobox' role for Select
-        expect(stateSelect).toBeInTheDocument();
+  test('handles fetch errors gracefully', async () => {
+    fetchMock.mockReject(new Error('API is down'));
+
+    render(<UserProfile />);
+
+    await waitFor(() => {
+      expect(screen.getByText('An error occurred. Please try again.')).toBeInTheDocument();
     });
-
-    test('adds and removes dates in the availability section', () => {
-        const { getByText, getByRole } = render(<UserProfile />);
-
-        // Simulate selecting a date
-        const currentDate = new Date();
-        act(() => {
-            fireEvent.click(screen.getByText(currentDate.getDate().toString()));
-        });
-
-        // Ensure the selected date is rendered
-        expect(getByText(currentDate.toDateString())).toBeInTheDocument();
-
-        // Simulate removing a date
-        fireEvent.click(getByText(/Remove/i));
-
-        // Ensure the date is removed
-        expect(screen.queryByText(currentDate.toDateString())).not.toBeInTheDocument();
-    });
+  });
 });

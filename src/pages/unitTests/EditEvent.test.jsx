@@ -1,221 +1,174 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import '@testing-library/jest-dom';
+import { BrowserRouter } from 'react-router-dom';
 import EditEvent from '../editEvent';
-import { useForm } from 'react-hook-form';
 
-// Mock the dependencies
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
-    useParams: () => ({ id: '1' })
-}));
-
-jest.mock('react-hook-form', () => ({
-    useForm: jest.fn()
-}));
-
-jest.mock('react-select', () => ({ options, ...rest }) => {
-    return (
-        <select data-testid="select" {...rest}>
-            {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                </option>
-            ))}
-        </select>
-    );
-});
-
-jest.mock('react-datepicker', () => ({ selected, onChange, ...rest }) => {
-    return (
-        <input
-            data-testid="date-picker"
-            type="date"
-            value={selected || ''}
-            onChange={(e) => onChange(new Date(e.target.value))}
-            {...rest}
-        />
-    );
-});
+// Utility to wrap component with Router for navigation
+const renderWithRouter = (ui) => {
+    return render(ui, { wrapper: BrowserRouter });
+};
 
 describe('EditEvent Component', () => {
-    let mockRegister, mockHandleSubmit, mockSetValue, mockWatch;
-
     beforeEach(() => {
-        mockRegister = jest.fn();
-        mockHandleSubmit = jest.fn();
-        mockSetValue = jest.fn();
-        mockWatch = jest.fn();
-
-        useForm.mockReturnValue({
-            register: mockRegister,
-            handleSubmit: mockHandleSubmit,
-            setValue: mockSetValue,
-            watch: mockWatch,
-            formState: { errors: {} }
-        });
+        jest.clearAllMocks();
     });
 
-    it('renders form elements', async () => {
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
-        expect(screen.getByLabelText('Event Description')).toBeInTheDocument();
-        expect(screen.getByLabelText('Location')).toBeInTheDocument();
-        expect(screen.getByTestId('select')).toBeInTheDocument();
-        expect(screen.getByTestId('date-picker')).toBeInTheDocument();
-    });
-
-    it('displays required validation messages when form is submitted with empty fields', async () => {
-        mockHandleSubmit.mockImplementation((fn) => (e) => {
-            e.preventDefault();
-            fn({
-                name: '',
-                eventDesc: '',
-                location: '',
-                skills: [],
-                date: ''
-            });
-        });
-
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        fireEvent.submit(screen.getByText('Update Event'));
-
-        await waitFor(() => {
-            expect(screen.getByText('Name is required')).toBeInTheDocument();
-            expect(
-                screen.getByText('Description is required')
-            ).toBeInTheDocument();
-            expect(screen.getByText('Location is required')).toBeInTheDocument();
-        });
-    });
-
-    it('fetches event data and populates fields correctly', async () => {
+    // Mock fetch function
+    const mockFetch = (data, success = true) => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: success,
+                json: () => Promise.resolve(data),
+            })
+        );
+    };
+
+    test('renders form fields correctly', async () => {
+        const eventData = {
+            name: 'Sample Event',
+            description: 'Sample Description',
+            location: 'Sample Location',
+            date: '2023-12-01T00:00:00.000Z',
+            skills: ['Academics', 'Arts'],
+            people: ['Person 1', 'Person 2'],
+        };
+        
+        mockFetch(eventData);
+
+        renderWithRouter(<EditEvent />);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText(/Event Name/i)).toHaveValue(eventData.name);
+            expect(screen.getByLabelText(/Event Description/i)).toHaveValue(eventData.description);
+            expect(screen.getByLabelText(/Location/i)).toHaveValue(eventData.location);
+            expect(screen.getByText(/Update Event/i)).toBeInTheDocument();
+        });
+    });
+
+    test('shows error messages if required fields are empty on submit', async () => {
+        const eventData = { name: 'Sample Event', description: '', location: '', date: null, skills: [] };
+        
+        mockFetch(eventData);
+        
+        renderWithRouter(<EditEvent />);
+
+        await waitFor(() => {
+            fireEvent.click(screen.getByText(/Update Event/i));
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
+            expect(screen.getByText(/Description is required/i)).toBeInTheDocument();
+            expect(screen.getByText(/Location is required/i)).toBeInTheDocument();
+            expect(screen.getByText(/This field is required/i)).toBeInTheDocument();
+        });
+    });
+
+    test('fetches event data on mount and populates form', async () => {
+        const eventData = {
+            name: 'Test Event',
+            description: 'This is a test description',
+            location: 'Test Location',
+            date: '2023-12-01T00:00:00.000Z',
+            skills: ['Academics', 'Engineering'],
+            people: ['John Doe'],
+        };
+
+        mockFetch(eventData);
+
+        renderWithRouter(<EditEvent />);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText(/Event Name/i)).toHaveValue('Test Event');
+            expect(screen.getByLabelText(/Event Description/i)).toHaveValue('This is a test description');
+            expect(screen.getByLabelText(/Location/i)).toHaveValue('Test Location');
+            expect(screen.getByText(/Update Event/i)).toBeInTheDocument();
+        });
+    });
+
+    test('displays success message on successful form submission', async () => {
+        const eventData = {
+            name: 'Sample Event',
+            description: 'Sample Description',
+            location: 'Sample Location',
+            date: '2023-12-01T00:00:00.000Z',
+            skills: ['Academics', 'Arts'],
+            people: ['Person 1', 'Person 2'],
+        };
+
+        mockFetch(eventData);
+
+        renderWithRouter(<EditEvent />);
+
+        // Simulate form submission with mock fetch response
+        global.fetch = jest.fn((url) => {
+            if (url.includes('/api/updateEvent')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ message: 'Event updated successfully!' }),
+                });
+            }
+            return Promise.resolve({
                 ok: true,
-                json: () =>
-                    Promise.resolve({
-                        name: 'Test Event',
-                        description: 'Test Description',
-                        location: 'Test Location',
-                        date: '2024-10-01',
-                        skills: ['Academics']
-                    })
-            })
-        );
-
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        await waitFor(() => {
-            expect(mockSetValue).toHaveBeenCalledWith('name', 'Test Event');
-            expect(mockSetValue).toHaveBeenCalledWith(
-                'eventDesc',
-                'Test Description'
-            );
-            expect(mockSetValue).toHaveBeenCalledWith('location', 'Test Location');
-            expect(mockSetValue).toHaveBeenCalledWith('skills', [
-                { value: 'Academics', label: 'Academics' }
-            ]);
-        });
-    });
-
-    it('handles form submission and displays success message', async () => {
-        mockHandleSubmit.mockImplementation((fn) => (e) => {
-            e.preventDefault();
-            fn({
-                name: 'Test Event',
-                eventDesc: 'Test Description',
-                location: 'Test Location',
-                skills: [{ value: 'Academics', label: 'Academics' }],
-                date: '2024-10-01'
+                json: () => Promise.resolve(eventData),
             });
         });
 
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
+        fireEvent.change(screen.getByLabelText(/Event Name/i), { target: { value: 'Updated Event Name' } });
+        fireEvent.click(screen.getByText(/Update Event/i));
+
+        await waitFor(() => {
+            expect(screen.getByText(/Event updated successfully!/i)).toBeInTheDocument();
+        });
+    });
+
+    test('displays error message on failed form submission', async () => {
+        const eventData = {
+            name: 'Sample Event',
+            description: 'Sample Description',
+            location: 'Sample Location',
+            date: '2023-12-01T00:00:00.000Z',
+            skills: ['Academics', 'Arts'],
+            people: ['Person 1', 'Person 2'],
+        };
+
+        mockFetch(eventData);
+
+        renderWithRouter(<EditEvent />);
+
+        // Simulate failed form submission
+        global.fetch = jest.fn((url) => {
+            if (url.includes('/api/updateEvent')) {
+                return Promise.resolve({
+                    ok: false,
+                    json: () => Promise.resolve({ error: 'Failed to update event.' }),
+                });
+            }
+            return Promise.resolve({
                 ok: true,
-                json: () => Promise.resolve({})
-            })
-        );
-
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        fireEvent.submit(screen.getByText('Update Event'));
-
-        await waitFor(() => {
-            expect(screen.getByText('Event updated successfully!')).toBeInTheDocument();
-        });
-    });
-
-    it('displays error message if fetching event data fails', async () => {
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: false,
-                json: () => Promise.resolve({ error: 'Failed to fetch event.' })
-            })
-        );
-
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        await waitFor(() => {
-            expect(
-                screen.getByText('Failed to fetch event.')
-            ).toBeInTheDocument();
-        });
-    });
-
-    it('displays error message if form submission fails', async () => {
-        mockHandleSubmit.mockImplementation((fn) => (e) => {
-            e.preventDefault();
-            fn({
-                name: 'Test Event',
-                eventDesc: 'Test Description',
-                location: 'Test Location',
-                skills: [{ value: 'Academics', label: 'Academics' }],
-                date: '2024-10-01'
+                json: () => Promise.resolve(eventData),
             });
         });
 
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: false,
-                json: () => Promise.resolve({ error: 'Failed to update event.' })
-            })
-        );
-
-        render(
-            <MemoryRouter>
-                <EditEvent />
-            </MemoryRouter>
-        );
-
-        fireEvent.submit(screen.getByText('Update Event'));
+        fireEvent.click(screen.getByText(/Update Event/i));
 
         await waitFor(() => {
-            expect(screen.getByText('Failed to update event.')).toBeInTheDocument();
+            expect(screen.getByText(/Failed to update event/i)).toBeInTheDocument();
+        });
+    });
+
+    test('changes date on date picker selection', async () => {
+        renderWithRouter(<EditEvent />);
+        const mockDate = new Date();
+
+        // Simulate date picker change
+        fireEvent.change(screen.getByPlaceholderText(/Select event date/i), {
+            target: { value: mockDate },
+        });
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Select event date/i)).toHaveValue(mockDate.toLocaleDateString());
         });
     });
 });

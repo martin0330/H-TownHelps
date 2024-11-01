@@ -1,81 +1,96 @@
+// Registration.test.jsx
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import Registration from '../registration'; // Adjust the import based on your file structure
-import '@testing-library/jest-dom/extend-expect'; // for the toBeInTheDocument matcher
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import Registration from '../registration';
+
+global.fetch = jest.fn();
+
+const renderComponent = () =>
+  render(
+    <BrowserRouter>
+      <Registration />
+    </BrowserRouter>
+  );
 
 describe('Registration Component', () => {
-
   beforeEach(() => {
-    render(<Registration />);
+    fetch.mockClear();
   });
 
-  test('renders all input fields and the submit button', () => {
-    // Check if all input fields are present
+  test('renders all form fields correctly', () => {
+    renderComponent();
+
+    // Check for form fields
     expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Last Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Re-type Password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Gender/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
   });
 
-  test('validates required fields', async () => {
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
+  test('displays success message on successful registration', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'Registration successful!' }),
+    });
 
-    // Submit the form without filling the fields
-    fireEvent.click(submitButton);
+    renderComponent();
 
-    // Expect validation errors (HTML5 built-in validation)
-    expect(screen.getByLabelText(/First Name/i)).toBeInvalid();
-    expect(screen.getByLabelText(/Last Name/i)).toBeInvalid();
-    expect(screen.getByLabelText(/Email/i)).toBeInvalid();
-    expect(screen.getByLabelText(/Password/i)).toBeInvalid();
-    expect(screen.getByLabelText(/Re-type Password/i)).toBeInvalid();
-    expect(screen.getByLabelText(/Gender/i)).toBeInvalid();
-  });
-
-  test('validates password field requirements', () => {
-    const passwordInput = screen.getByLabelText(/Password/i);
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
-
-    // Enter a password that doesn't meet the pattern
-    fireEvent.change(passwordInput, { target: { value: 'abc123' } });
-    fireEvent.click(submitButton);
-
-    // Expect the password field to be invalid due to pattern mismatch
-    expect(passwordInput).toBeInvalid();
-  });
-
-  test('submits form with valid data', () => {
-    const firstNameInput = screen.getByLabelText(/First Name/i);
-    const lastNameInput = screen.getByLabelText(/Last Name/i);
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Password/i);
-    const rePasswordInput = screen.getByLabelText(/Re-type Password/i);
-    const genderSelect = screen.getByLabelText(/Gender/i);
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
-
-    // Fill in the form with valid data
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
-    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
-    fireEvent.change(emailInput, { target: { value: 'john.doe@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(rePasswordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(genderSelect, { target: { value: 'male' } });
+    // Fill out the form
+    fireEvent.change(screen.getByLabelText(/First Name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/Last Name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Pass@1234' } });
+    fireEvent.change(screen.getByLabelText(/Re-type Password/i), { target: { value: 'Pass@1234' } });
+    fireEvent.change(screen.getByLabelText(/Gender/i), { target: { value: 'male' } });
 
     // Submit the form
-    fireEvent.click(submitButton);
+    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
 
-    // Mock the console log to verify submission
-    const consoleSpy = jest.spyOn(console, 'log');
-    expect(consoleSpy).toHaveBeenCalledWith({
-      first: 'John',
-      last: 'Doe',
-      email: 'john.doe@example.com',
-      password: 'Password123!',
-      repassword: 'Password123!',
-      gender: 'male',
+    // Check for success message
+    await waitFor(() => expect(screen.getByText('Registration successful!')).toBeInTheDocument());
+  });
+
+  test('displays error message on failed registration', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Registration failed' }),
     });
+
+    renderComponent();
+
+    // Fill out the form
+    fireEvent.change(screen.getByLabelText(/First Name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/Last Name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Pass@1234' } });
+    fireEvent.change(screen.getByLabelText(/Re-type Password/i), { target: { value: 'Pass@1234' } });
+    fireEvent.change(screen.getByLabelText(/Gender/i), { target: { value: 'male' } });
+
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+    // Check for error message
+    await waitFor(() => expect(screen.getByText(/Error:/)).toBeInTheDocument());
+    expect(screen.getByText(/Registration failed/)).toBeInTheDocument();
+  });
+
+  test('displays password validation error', async () => {
+    renderComponent();
+
+    // Enter invalid password
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password' } });
+    fireEvent.change(screen.getByLabelText(/Re-type Password/i), { target: { value: 'password' } });
+
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+    // Check for validation message
+    await waitFor(() =>
+      expect(screen.getByText(/Password must contain at least one number, one alphabet, one symbol, and be at least 8 characters long/)).toBeInTheDocument()
+    );
   });
 });
