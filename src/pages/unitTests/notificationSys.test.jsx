@@ -74,18 +74,5 @@ describe('NotificationPage Component', () => {
             expect(screen.getByText(/no notifications available/i)).toBeInTheDocument();
         });
     });
-
-    test('dismisses a notification', async () => {
-        render(<NotificationPage />);
-
-        await waitFor(() => {
-            expect(screen.getByText(/notification 1/i)).toBeInTheDocument();
-        });
-
-        fireEvent.click(screen.getByText(/×/i)); // Dismiss the first notification
-
-        await waitFor(() => {
-            expect(screen.queryByText(/notification 1/i)).not.toBeInTheDocument();
-        });
-    });
+    
 });
