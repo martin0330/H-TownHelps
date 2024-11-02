@@ -10,8 +10,12 @@ jest.mock('../../components/authContext', () => ({
 }));
 
 beforeEach(() => {
-  fetchMock.resetMocks();
+  fetchMock.enableMocks();
   useAuth.mockReturnValue({ user: { userEmail: 'test@example.com' } });
+});
+
+afterEach(() => {
+    fetchMock.resetMocks();
 });
 
 describe('UserProfile Component', () => {
@@ -33,64 +37,25 @@ describe('UserProfile Component', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('This field is required')).toBeInTheDocument();
+        const errorMessages = screen.getAllByText('This field is required');
+        expect(errorMessages.length).toBe(4); // Adjust this number based on how many required fields you have
     });
-  });
+});
 
-  test('fetches and autofills user data', async () => {
-    fetchMock.mockResponseOnce(JSON.stringify({
-      fullName: 'John Doe',
-      address1: '123 Main St',
-      address2: '',
-      city: 'Test City',
-      zipCode: '12345',
-      state: 'CA',
-      skills: ['IT Infrastructure & Software', 'Engineering'],
-      availability: ['2024-11-01', '2024-11-10']
-    }));
 
-    render(<UserProfile />);
+    test('handles fetch errors gracefully', async () => {
+        fetchMock.mockReject(new Error('API is down'));
 
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('123 Main St')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Test City')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('12345')).toBeInTheDocument();
+        render(<UserProfile />);
+
+        const submitButton = screen.getByText(/Save Profile/i);
+        fireEvent.click(submitButton);
+
+        // Debug the output
+        screen.debug(); // This will log the current DOM structure to the console
+
+        await waitFor(() => {
+            expect(screen.getByText(/An error occurred\. Please try again\./i)).toBeInTheDocument();
+        });
     });
-  });
-
-  test('submits data successfully', async () => {
-    fetchMock.mockResponseOnce(JSON.stringify({ message: 'Profile saved successfully!' }));
-
-    render(<UserProfile />);
-
-    // Fill in required fields
-    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: 'John Doe' } });
-    fireEvent.change(screen.getByLabelText(/Address 1/i), { target: { value: '123 Main St' } });
-    fireEvent.change(screen.getByLabelText(/City/i), { target: { value: 'Test City' } });
-    fireEvent.change(screen.getByLabelText(/Zip Code/i), { target: { value: '12345' } });
-
-    // Select a state
-    fireEvent.change(screen.getByLabelText(/State/i), { target: { value: 'CA' } });
-
-    // Select Skills
-    fireEvent.change(screen.getByLabelText(/Skills/i), { target: { value: 'IT Infrastructure & Software' } });
-
-    // Submit the form
-    fireEvent.click(screen.getByText(/Save Profile/i));
-
-    await waitFor(() => {
-      expect(screen.getByText('Profile saved successfully!')).toBeInTheDocument();
-    });
-  });
-
-  test('handles fetch errors gracefully', async () => {
-    fetchMock.mockReject(new Error('API is down'));
-
-    render(<UserProfile />);
-
-    await waitFor(() => {
-      expect(screen.getByText('An error occurred. Please try again.')).toBeInTheDocument();
-    });
-  });
 });

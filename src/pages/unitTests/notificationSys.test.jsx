@@ -1,42 +1,91 @@
-// NotificationPage.test.jsx
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import NotificationPage from '../notifications' ;
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { useAuth } from '../../components/authContext';
+import NotificationPage from '../notifications'; // Adjust the import path as necessary
+import '@testing-library/jest-dom'; // Import this to use `toBeInTheDocument`
 
-describe('NotificationPage', () => {
-  test('renders notification messages', () => {
-    render(<NotificationPage />);
+// Mock the useAuth hook
+jest.mock('../../components/authContext', () => ({
+    useAuth: jest.fn(),
+}));
 
-    // Check for the presence of all notifications
-    expect(screen.getByText('Reminder: Community Cleanup Drive on Sep 30, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Reminder: Food Donation Event on Aug 20, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Reminder: Animal Shelter Help on Jul 15, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Upcoming Volunteer Orientation on Oct 5, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Don’t forget: Training Workshop on Sep 25, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Last call: Charity Run on Oct 1, 2024')).toBeInTheDocument();
-  });
+// Mock the fetch API
+global.fetch = jest.fn(() =>
+    Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([
+            { id: 1, message: 'Notification 1', type: 'info', date: '2023-01-01' },
+            { id: 2, message: 'Notification 2', type: 'info', date: '2023-01-02' },
+        ]),
+    })
+);
 
-  test('dismisses a notification when the dismiss button is clicked', () => {
-    render(<NotificationPage />);
+describe('NotificationPage Component', () => {
+    beforeEach(() => {
+        fetch.mockClear();
+        useAuth.mockReturnValue({ user: { userEmail: 'test@example.com' } });
+    });
 
-    // Find the dismiss button for the first notification
-    const dismissButton = screen.getAllByRole('button', { name: /×/ })[0];
+    test('renders the notifications title', () => {
+        render(<NotificationPage />);
+        expect(screen.getByRole('heading', { name: /notifications/i })).toBeInTheDocument();
+    });
 
-    // Click the dismiss button
-    fireEvent.click(dismissButton);
+    test('fetches and displays notifications', async () => {
+        render(<NotificationPage />);
+        
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledWith(
+                'http://localhost:5000/api/getNotifications',
+                expect.any(Object)
+            );
+        });
 
-    // Check that the first notification is no longer in the document
-    expect(screen.queryByText('Reminder: Community Cleanup Drive on Sep 30, 2024')).not.toBeInTheDocument();
-  });
+        expect(await screen.findByText(/notification 1/i)).toBeInTheDocument();
+        expect(await screen.findByText(/notification 2/i)).toBeInTheDocument();
+    });
 
-  test('displays "No notifications available" when notifications list is empty', () => {
-    render(<NotificationPage />);
+    test('displays no notifications message when there are none', async () => {
+        fetch.mockImplementationOnce(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve([]),
+            })
+        );
 
-    // Dismiss all notifications
-    const dismissButtons = screen.getAllByRole('button', { name: /×/ });
-    dismissButtons.forEach(button => fireEvent.click(button));
+        render(<NotificationPage />);
 
-    // Check for the no notifications message
-    expect(screen.getByText('No notifications available.')).toBeInTheDocument();
-  });
+        await waitFor(() => {
+            expect(screen.getByText(/no notifications available/i)).toBeInTheDocument();
+        });
+    });
+
+    test('handles error when fetching notifications', async () => {
+        fetch.mockImplementationOnce(() =>
+            Promise.resolve({
+                ok: false,
+                json: () => Promise.resolve({ error: 'Failed to fetch notifications' }),
+            })
+        );
+
+        render(<NotificationPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText(/no notifications available/i)).toBeInTheDocument();
+        });
+    });
+
+    test('dismisses a notification', async () => {
+        render(<NotificationPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText(/notification 1/i)).toBeInTheDocument();
+        });
+
+        fireEvent.click(screen.getByText(/×/i)); // Dismiss the first notification
+
+        await waitFor(() => {
+            expect(screen.queryByText(/notification 1/i)).not.toBeInTheDocument();
+        });
+    });
 });

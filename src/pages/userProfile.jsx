@@ -133,8 +133,17 @@ const UserProfile = () => {
                     const availabilityDates = result.availability.map(dateStr => new Date(dateStr));
                     setSelectedDates(availabilityDates);
                 }
+
+                else if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Something went wrong. Please try again.');
+                }
+                const result = await response.json();
+                setSuccessMessage(result.message);
+                setError(null);
             } catch (err) {
                 console.error(err);
+                setError(err.message || 'An error occurred. Please try again.'); // Ensure this line is reached
             }
         };
 
@@ -235,12 +244,13 @@ const UserProfile = () => {
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="mb-6">
-                        <label className="block text-gray-700 font-semibold mb-2" htmlFor="state">State</label>
+                    <label className="block text-gray-700 font-semibold mb-2" htmlFor="state">State</label>
                         <Controller
                             name="state"
                             control={control}
                             render={({ field }) => (
                                 <Select
+                                    id="state" // Ensure this matches the label's htmlFor
                                     options={states}
                                     {...field}
                                     onChange={option => field.onChange(option)}

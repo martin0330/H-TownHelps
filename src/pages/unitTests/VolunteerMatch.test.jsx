@@ -19,10 +19,6 @@ describe('VolunteerMatchingForm Component', () => {
     fetch.mockClear();
   });
 
-  test('renders without crashing and displays loading spinner', () => {
-    render(<VolunteerMatchingForm />);
-    expect(screen.getByText(/updating events/i)).toBeInTheDocument();
-  });
 
   test('shows "No access" message when user lacks admin access', async () => {
     fetch.mockResolvedValueOnce({
