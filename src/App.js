@@ -16,11 +16,11 @@ function App() {
     };
 
     return (
-        <>
+        <div className='h-dvh'>
             {/* Conditionally render the nav bar based on the current path */}
             {!isLoginPage && !isRegistrationPage && (
                 <nav className="bg-sky-950 text-white p-4 shadow-md">
-                    <div className="max-w-7xl mx-auto mr-0 px-2 sm:px-6 lg:px-8">
+                    <div className="w-full px-2 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center">
                             <div className="text-3xl font-bold font-quicksand"><Link to='/main'>H-TownHelps</Link></div>
 
@@ -125,7 +125,7 @@ function App() {
             )}
 
             <Outlet />
-        </>
+        </div>
     );
 }
 
