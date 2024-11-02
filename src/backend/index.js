@@ -18,6 +18,7 @@ const deleteEvent = require('./api/events/deleteEvent.js');
 const updateEvent = require('./api/events/updateEvent.js');
 const getNotifs = require('./api/notifications/getNotif.js');
 const sendNotif = require('./api/notifications/sendNotif.js');
+const updateNotif = require('./api/notifications/updateNotif.js');
 const getHistory = require('./api/history/getHistory.js');
 const sendHistory = require('./api/history/sendHistory.js');
 
@@ -53,6 +54,7 @@ app.use('/api/deleteEvent', deleteEvent);
 app.use('/api/updateEvent', updateEvent);
 app.use('/api/getNotifications', getNotifs);
 app.use('/api/sendNotification', sendNotif);
+app.use('/api/updateNotifications', updateNotif);
 app.use('/api/getHistory', getHistory);
 app.use('/api/sendHistory', sendHistory);
 
