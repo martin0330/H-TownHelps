@@ -82,9 +82,10 @@ const VolunteerMatchingForm = () => {
         getAdminAccess();
     }, [user]);
 
-    const getAvailablePeople = (eventDate) => {
+    const getAvailablePeople = (eventDate, eventSkill) => {
         return profiles.filter((profile) =>
-            profile.availability.includes(eventDate)
+            profile.availability.includes(eventDate) &&
+            profile.skills.some((skill) => eventSkill.includes(skill))
         );
     };
 
@@ -181,10 +182,10 @@ const VolunteerMatchingForm = () => {
                             <Select
                                 id={`people-dropdown-${event.id}`}
                                 isMulti
-                                options={getAvailablePeople(event.date).map(
+                                options={getAvailablePeople(event.date, event.skills).map(
                                     (profile) => ({
                                         value: profile.id,
-                                        label: profile.name,
+                                        label: `${profile.fullName}: ${profile.email}`,
                                     })
                                 )}
                                 onChange={(selectedOptions) =>
@@ -201,7 +202,7 @@ const VolunteerMatchingForm = () => {
                                         return person
                                             ? {
                                                   value: person.id,
-                                                  label: person.name,
+                                                  label: person.fullName,
                                               }
                                             : null;
                                     }
