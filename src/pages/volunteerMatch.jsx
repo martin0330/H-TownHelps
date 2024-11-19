@@ -82,9 +82,11 @@ const VolunteerMatchingForm = () => {
         getAdminAccess();
     }, [user]);
 
-    const getAvailablePeople = (eventDate) => {
-        return profiles.filter((profile) =>
-            profile.availability.includes(eventDate)
+    const getAvailablePeople = (eventDate, eventSkill) => {
+        return profiles.filter(
+            (profile) =>
+                profile.availability.includes(eventDate) &&
+                profile.skills.some((skill) => eventSkill.includes(skill))
         );
     };
 
@@ -97,53 +99,60 @@ const VolunteerMatchingForm = () => {
         }));
     };
 
-    // Helper function to send notification
-    const sendNotification = async (email, eventName) => {
-        try {
-            await fetch('http://localhost:5000/api/sendNotification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    message: `Welcome to the ${eventName} event! We look forward to seeing you there.`,
-                }),
-            });
-        } catch (error) {
-            console.error('Error sending notification:', error);
-        }
-    };
-
-    // Helper function to send history
-    const sendHistory = async (email, eventName) => {
-        try {
-            await fetch('http://localhost:5000/api/sendHistory', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    message: `Added to ${eventName} event!`,
-                }),
-            });
-        } catch (error) {
-            console.error('Error sending history:', error);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         for (const [eventId, peopleIds] of Object.entries(selectedPeople)) {
-            const event = events.find((e) => e.id === eventId);
+            const event = events.find((e) => e._id === eventId);
             const eventName = event ? event.name : 'Event';
 
-            // Send notifications to each selected person
+            try {
+                for (const personId of peopleIds) {
+                    if (!event.volunteers.includes(personId)) {
+                        event.volunteers.push(personId);
+                    }
+                }
+                await fetch('http://localhost:5000/api/updateEvent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: eventId,
+                        updatedEvent: event,
+                    }),
+                });
+            } catch (error) {
+                console.error(error);
+            }
+
             for (const personId of peopleIds) {
                 const person = profiles.find(
-                    (profile) => profile.id === personId
+                    (profile) => profile._id === personId
                 );
                 if (person) {
-                    await sendNotification(person.email, eventName);
-                    await sendHistory(person.email, eventName);
+                    try {
+                        await fetch(
+                            'http://localhost:5000/api/sendNotification',
+                            {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    email: person.email,
+                                    message: `Welcome to the ${eventName} event! We look forward to seeing you there.`,
+                                }),
+                            }
+                        );
+
+                        await fetch('http://localhost:5000/api/sendHistory', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: person.email,
+                                message: `Added to ${eventName} event!`,
+                            }),
+                        });
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
             }
         }
@@ -162,7 +171,7 @@ const VolunteerMatchingForm = () => {
                 <form onSubmit={handleSubmit}>
                     {events.map((event) => (
                         <div
-                            key={event.id}
+                            key={event._id}
                             className='mb-6 p-6 border rounded-lg shadow-md bg-gray-100'
                         >
                             <h3 className='text-xl font-bold text-indigo-600'>
@@ -173,39 +182,43 @@ const VolunteerMatchingForm = () => {
                                 {new Date(event.date).toLocaleDateString()}
                             </p>
                             <label
-                                htmlFor={`people-dropdown-${event.id}`}
+                                htmlFor={`people-dropdown-${event._id}`}
                                 className='block mt-3 text-sm font-medium text-gray-700'
                             >
                                 Select People:
                             </label>
                             <Select
-                                id={`people-dropdown-${event.id}`}
+                                id={`people-dropdown-${event._id}`}
                                 isMulti
-                                options={getAvailablePeople(event.date).map(
-                                    (profile) => ({
-                                        value: profile.id,
-                                        label: profile.name,
-                                    })
-                                )}
+                                options={getAvailablePeople(
+                                    event.date,
+                                    event.skills
+                                ).map((profile) => ({
+                                    value: profile._id,
+                                    label: profile.fullName,
+                                }))}
                                 onChange={(selectedOptions) =>
                                     handleSelectChange(
-                                        event.id,
+                                        event._id,
                                         selectedOptions
                                     )
                                 }
-                                value={selectedPeople[event.id]?.map(
-                                    (personId) => {
-                                        const person = profiles.find(
-                                            (profile) => profile.id === personId
-                                        );
-                                        return person
-                                            ? {
-                                                  value: person.id,
-                                                  label: person.name,
-                                              }
-                                            : null;
-                                    }
-                                )}
+                                value={
+                                    selectedPeople[event._id]?.map(
+                                        (personId) => {
+                                            const person = profiles.find(
+                                                (profile) =>
+                                                    profile._id === personId
+                                            );
+                                            return person
+                                                ? {
+                                                      value: person._id,
+                                                      label: person.fullName,
+                                                  }
+                                                : null;
+                                        }
+                                    ) || []
+                                }
                                 className='mt-1'
                                 classNamePrefix='react-select'
                             />

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../components/authContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { CiEdit } from "react-icons/ci";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { CiEdit } from 'react-icons/ci';
+import { FaRegTrashAlt } from 'react-icons/fa';
 
 const EventList = () => {
     const { user } = useAuth(); // Assuming user.UserEmail is available here
     const [adminAccess, setAdminAccess] = useState(false); // Track admin access state
     const [events, setEvents] = useState([]);
+    const [profiles, setProfiles] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate(); // To programmatically navigate
 
@@ -61,8 +62,29 @@ const EventList = () => {
             }
         };
 
+        const fetchProfiles = async () => {
+            try {
+                const response = await fetch(
+                    'http://localhost:5000/api/getProfiles',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    }
+                );
+                const data = await response.json();
+                if (response.ok) {
+                    setProfiles(data);
+                } else {
+                    setError(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
         fetchEvents();
         getAdminAccess();
+        fetchProfiles();
     }, [user.userEmail]);
 
     // Delete event function
@@ -129,7 +151,7 @@ const EventList = () => {
                                             onClick={() =>
                                                 handleEdit(event._id)
                                             }
-                                            aria-label="edit event"
+                                            aria-label='edit event'
                                         >
                                             <CiEdit size={28} />
                                         </button>
@@ -138,9 +160,12 @@ const EventList = () => {
                                             onClick={() =>
                                                 handleDelete(event._id)
                                             }
-                                            aria-label="delete event"
+                                            aria-label='delete event'
                                         >
-                                            <FaRegTrashAlt size={20} color='black' />
+                                            <FaRegTrashAlt
+                                                size={20}
+                                                color='black'
+                                            />
                                         </button>
                                     </div>
                                 )}
@@ -161,7 +186,7 @@ const EventList = () => {
                                     Skills: {event.skills.join(', ')}
                                 </p>
                                 <p className='text-gray-500 mt-2'>
-                                    People: {event.people.join(', ')}
+                                    People: {event.volunteers.join(', ')}
                                 </p>
                             </li>
                         ))}
