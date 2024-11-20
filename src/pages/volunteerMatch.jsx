@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useAuth } from '../components/authContext';
+import { jsPDF } from 'jspdf';
+import Papa from 'papaparse';
 
 const VolunteerMatchingForm = () => {
     const [error, setError] = useState(null);
@@ -160,6 +162,44 @@ const VolunteerMatchingForm = () => {
         console.log('Participants updated and notifications sent.');
     };
 
+    const generatePDFReport = () => {
+        const doc = new jsPDF();
+
+        doc.text('Volunteer Participation Report', 10, 10);
+        events.forEach((event, index) => {
+            const eventDetails = `
+                Event Name: ${event.name}
+                Date: ${new Date(event.date).toLocaleDateString()}
+                Volunteers: ${event.volunteers.length}
+            `;
+            doc.text(eventDetails, 10, 20 + (index * 30));
+        });
+
+        doc.save('volunteer_participation_report.pdf');
+    };
+
+    const generateCSVReport = () => {
+        // Define the header of the CSV
+        let csvContent = "Event Name,Event Date,Number of Volunteers\n";
+    
+        // Loop through each event and append the event details to the CSV string
+        events.forEach((event) => {
+            const eventName = event.name || "";
+            const eventDate = new Date(event.date).toLocaleDateString() || "";
+            const numberOfVolunteers = event.volunteers.length || 0;
+    
+            // Add event details to the CSV string, ensuring proper formatting with commas
+            csvContent += `${eventName},${eventDate},${numberOfVolunteers}\n`;
+        });
+    
+        // Create a Blob with the CSV content and trigger the download
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "volunteer_participation_report.csv";
+        link.click();
+    };
+
     return (
         <div className='max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-lg'>
             {error && <p className='text-red-500'>{error}</p>}
@@ -169,14 +209,33 @@ const VolunteerMatchingForm = () => {
                 </p>
             ) : (
                 <form onSubmit={handleSubmit}>
+                    <div className='flex justify-between mb-6'>
+                        <h3 className='text-xl font-bold text-indigo-600'>
+                            Volunteer Matching
+                        </h3>
+                        <div className='flex space-x-4'>
+                            <button
+                                type='button'
+                                onClick={generatePDFReport}
+                                className='bg-green-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-green-700'
+                            >
+                                Generate PDF Report
+                            </button>
+                            <button
+                                type='button'
+                                onClick={generateCSVReport}
+                                className='bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-blue-700'
+                            >
+                                Generate CSV Report
+                            </button>
+                        </div>
+                    </div>
+
                     {events.map((event) => (
                         <div
                             key={event._id}
                             className='mb-6 p-6 border rounded-lg shadow-md bg-gray-100'
                         >
-                            <h3 className='text-xl font-bold text-indigo-600'>
-                                {event.name}
-                            </h3>
                             <p className='text-gray-600'>
                                 Date:{' '}
                                 {new Date(event.date).toLocaleDateString()}
