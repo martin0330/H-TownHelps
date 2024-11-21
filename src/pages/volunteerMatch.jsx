@@ -11,6 +11,7 @@ const VolunteerMatchingForm = () => {
     const [profiles, setProfiles] = useState([]);
     const [adminAccess, setAdminAccess] = useState(false);
     const [selectedPeople, setSelectedPeople] = useState({});
+    const [volunteerHistory, setVolunteerHistory] = useState([]);
     const [updatedDiv, setUpdatedDiv] = useState(false);
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -180,37 +181,157 @@ const VolunteerMatchingForm = () => {
         }, 2000);
     };
 
+    const fetchVolunteerHistory = async () => {
+        try {
+            const response = await fetch(
+                'http://localhost:5000/api/getHistory',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: profiles }),
+                }
+            );
+            const data = await response.json();
+
+            if (response.ok) {
+                setVolunteerHistory(data);
+            } else {
+                // setError(data.error);
+            }
+        } catch (err) {
+            console.error('Error fetching volunteer history:', err);
+            setError('Server error occurred. Please try again later.');
+        }
+    };
+
     const generatePDFReport = () => {
         const doc = new jsPDF();
 
-        doc.text('Volunteer Participation Report', 10, 10);
-        events.forEach((event, index) => {
-            const eventDetails = `
-                Event Name: ${event.name}
-                Date: ${new Date(event.date).toLocaleDateString()}
-                Volunteers: ${event.volunteers.length}
-            `;
-            doc.text(eventDetails, 10, 20 + index * 30);
+        // Add the header
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Volunteer Participation Report', 105, 20, {
+            align: 'center',
         });
 
-        doc.save('volunteer_participation_report.pdf');
+        // Add a horizontal line under the header
+        doc.setLineWidth(0.5);
+        doc.line(10, 25, 200, 25);
+
+        // Add Event Details Section
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Event Details', 10, 35);
+
+        let yOffset = 45; // Start below the section header
+        events.forEach((event) => {
+            const volunteers = event.volunteers
+                ?.map((personId) => {
+                    const person = profiles.find(
+                        (profile) => profile._id === personId
+                    );
+                    return person ? person.fullName : 'Unknown';
+                })
+                .join(', ');
+
+            // Event details
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Event Name: ${event.name}`, 10, yOffset);
+            doc.text(
+                `Date: ${new Date(event.date).toLocaleDateString()}`,
+                10,
+                yOffset + 5
+            );
+            doc.text(`Volunteers: ${volunteers || 'None'}`, 10, yOffset + 10);
+
+            // Add spacing between events
+            yOffset += 20;
+        });
+
+        // Add a horizontal line to separate sections
+        doc.line(10, yOffset - 5, 200, yOffset - 5);
+
+        // Add Volunteer History Section
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Volunteer History', 10, yOffset + 5);
+
+        yOffset += 15;
+
+        volunteerHistory.forEach((volunteer) => {
+            const { email, histories } = volunteer;
+
+            // Email Header
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Email: ${email}`, 10, yOffset);
+
+            // Volunteer History Details
+            yOffset += 5;
+            histories.forEach((historyItem) => {
+                const description = historyItem.description || '';
+                const date =
+                    new Date(historyItem.date).toLocaleDateString() || '';
+                const status =
+                    new Date(historyItem.date) < new Date()
+                        ? 'Completed'
+                        : 'Ongoing';
+
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`  Description: ${description}`, 10, yOffset + 5);
+                doc.text(`  Date: ${date}`, 10, yOffset + 10);
+                doc.text(`  Status: ${status}`, 10, yOffset + 15);
+
+                yOffset += 20;
+            });
+
+            // Add spacing between different volunteers
+            yOffset += 10;
+        });
+
+        // Save the PDF
+        doc.save('styled_volunteer_participation_report.pdf');
     };
 
     const generateCSVReport = () => {
-        // Define the header of the CSV
+        // Define the CSV header
         let csvContent = 'Event Name,Event Date,Number of Volunteers\n';
 
-        // Loop through each event and append the event details to the CSV string
+        // Add Event Details
         events.forEach((event) => {
             const eventName = event.name || '';
             const eventDate = new Date(event.date).toLocaleDateString() || '';
-            const numberOfVolunteers = event.volunteers.length || 0;
+            const numberOfVolunteers = event.volunteers?.length || 0;
 
-            // Add event details to the CSV string, ensuring proper formatting with commas
             csvContent += `${eventName},${eventDate},${numberOfVolunteers}\n`;
         });
 
-        // Create a Blob with the CSV content and trigger the download
+        // Add a Section for Volunteer History
+        csvContent += '\nVolunteer History\n';
+        csvContent += 'Email,Description,Date,Status\n';
+
+        // Iterate through volunteer history
+        fetchVolunteerHistory();
+        volunteerHistory.forEach((volunteer) => {
+            const { email, histories } = volunteer;
+
+            histories.forEach((historyItem) => {
+                const description = historyItem.description || '';
+                const date =
+                    new Date(historyItem.date).toLocaleDateString() || '';
+                const status =
+                    new Date(historyItem.date) < new Date()
+                        ? 'Completed'
+                        : 'Ongoing';
+
+                // Append email and history details
+                csvContent += `${email},${description},${date},${status}\n`;
+            });
+        });
+
+        // Trigger download
         const blob = new Blob([csvContent], {
             type: 'text/csv;charset=utf-8;',
         });

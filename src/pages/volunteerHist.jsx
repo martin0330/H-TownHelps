@@ -30,7 +30,7 @@ const VolunteerHistory = () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setVolunteerHistory(data);
+                    setVolunteerHistory(data.histories);
                 } else {
                     // setError(data.error);
                 }
