@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
         if (!userHist || !userHist.historyList.length) {
             return res.status(400).json({ error: 'No history for this user' });
         }
-        return res.status(200).json(userNotif.historyList); // Send the history list as response
+        return res.status(200).json(userHist.historyList); // Send the history list as response
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });

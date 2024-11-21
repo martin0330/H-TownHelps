@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -120,6 +121,7 @@ const UserProfile = () => {
         watch,
         formState: { errors },
     } = useForm({ criteriaMode: 'all' });
+    const navigate = useNavigate();
     const [selectedDates, setSelectedDates] = useState([]);
     const { user } = useAuth();
     const [error, setError] = useState(null);
@@ -214,8 +216,9 @@ const UserProfile = () => {
             }
 
             const result = await response.json();
-            setSuccessMessage(result.message);
+            setSuccessMessage(result.message + '. Going back to home page...');
             setError(null);
+            setTimeout(() => navigate('/main'), 2000);
         } catch (err) {
             console.error(err);
             setError(err.message || 'An error occurred. Please try again.');

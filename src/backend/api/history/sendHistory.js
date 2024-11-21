@@ -4,32 +4,44 @@ const Histories = require('../../../schemas/history');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-    const { email, message } = req.body;
-    try {
-        // Find the user's notification document
-        const userHistory = await Histories.findOne({ email });
+    const { email, historyItem } = req.body;
 
-        // Create history is user history is not found
+    if (
+        !email ||
+        !historyItem ||
+        !historyItem.date ||
+        !historyItem.description
+    ) {
+        return res.status(400).json({
+            error: 'Invalid input. Please provide all required fields.',
+        });
+    }
+
+    try {
+        // Find the user's history document
+        let userHistory = await Histories.findOne({ email });
+
+        // If the user does not have a history document, create a new one
         if (!userHistory) {
-            const newUserHistory = new Histories({
+            userHistory = new Histories({
                 email,
-                notificationList: [message],
+                historyList: [historyItem], // Add the history item directly
             });
-            newUserHistory.save();
-            return res.status(200).json({
+            await userHistory.save();
+            return res.status(201).json({
                 message: 'History created and added successfully',
             });
         }
 
-        // Add the new message to the History list array
-        userHistory.historyList.push(message);
+        // Add the new history item to the historyList array
+        userHistory.historyList.push(historyItem);
 
         // Save the updated document
         await userHistory.save();
 
-        return res
-            .status(200)
-            .json({ message: 'History item added successfully' });
+        return res.status(200).json({
+            message: 'History item added successfully',
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });

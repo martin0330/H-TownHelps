@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useAuth } from '../components/authContext';
+import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import Papa from 'papaparse';
 
@@ -11,6 +12,7 @@ const VolunteerMatchingForm = () => {
     const [adminAccess, setAdminAccess] = useState(false);
     const [selectedPeople, setSelectedPeople] = useState({});
     const [updatedDiv, setUpdatedDiv] = useState(false);
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     useEffect(() => {
@@ -30,6 +32,14 @@ const VolunteerMatchingForm = () => {
                         (a, b) => new Date(a.date) - new Date(b.date)
                     );
                     setEvents(sortedEvents);
+
+                    // Initialize selectedPeople state
+                    const initialSelectedPeople = {};
+                    sortedEvents.forEach((event) => {
+                        initialSelectedPeople[event._id] =
+                            event.volunteers || [];
+                    });
+                    setSelectedPeople(initialSelectedPeople);
                 } else {
                     setError(data.error);
                 }
@@ -80,19 +90,9 @@ const VolunteerMatchingForm = () => {
             }
         };
 
-        const setEventPeople = () => {
-            for (const event of events) {
-                setSelectedPeople((prevState) => ({
-                    ...prevState,
-                    [event._id]: event.volunteers,
-                }));
-            }
-        };
-
         fetchEvents();
         fetchProfiles();
         getAdminAccess();
-        setEventPeople();
     }, [user]);
 
     const getAvailablePeople = (eventDate, eventSkill) => {
@@ -119,30 +119,13 @@ const VolunteerMatchingForm = () => {
             const event = events.find((e) => e._id === eventId);
             const eventName = event ? event.name : 'Event';
 
-            try {
-                for (const personId of peopleIds) {
-                    if (!event.volunteers.includes(personId)) {
-                        event.volunteers.push(personId);
-                    }
-                }
-                await fetch('http://localhost:5000/api/updateEvent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: eventId,
-                        updatedEvent: event,
-                    }),
-                });
-            } catch (error) {
-                console.error(error);
-            }
-
             for (const personId of peopleIds) {
                 const person = profiles.find(
                     (profile) => profile._id === personId
                 );
                 if (person) {
                     try {
+                        if (event.volunteers.includes(personId)) continue;
                         await fetch(
                             'http://localhost:5000/api/sendNotification',
                             {
@@ -160,7 +143,12 @@ const VolunteerMatchingForm = () => {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 email: person.email,
-                                message: `Added to ${eventName} event!`,
+                                historyItem: {
+                                    date: new Date(
+                                        event.date
+                                    ).toLocaleDateString(),
+                                    description: `Added to ${eventName} event!`,
+                                },
                             }),
                         });
                     } catch (error) {
@@ -168,11 +156,28 @@ const VolunteerMatchingForm = () => {
                     }
                 }
             }
+
+            try {
+                event.volunteers = peopleIds;
+                await fetch('http://localhost:5000/api/updateEvent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: eventId,
+                        updatedEvent: event,
+                    }),
+                });
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         console.log('Participants updated and notifications sent.');
         setUpdatedDiv(true);
-        setTimeout(() => setUpdatedDiv(false), 3500);
+        setTimeout(() => {
+            setUpdatedDiv(false);
+            navigate('/main');
+        }, 2000);
     };
 
     const generatePDFReport = () => {
@@ -290,8 +295,8 @@ const VolunteerMatchingForm = () => {
                                     )
                                 }
                                 value={
-                                    selectedPeople[event._id]?.map(
-                                        (personId) => {
+                                    (selectedPeople[event._id] || [])
+                                        .map((personId) => {
                                             const person = profiles.find(
                                                 (profile) =>
                                                     profile._id === personId
@@ -302,8 +307,8 @@ const VolunteerMatchingForm = () => {
                                                       label: person.fullName,
                                                   }
                                                 : null;
-                                        }
-                                    ) || []
+                                        })
+                                        .filter(Boolean) // Remove any null values
                                 }
                                 className='mt-1'
                                 classNamePrefix='react-select'
@@ -318,7 +323,7 @@ const VolunteerMatchingForm = () => {
                     </button>
                     {updatedDiv && (
                         <div className='text-xl text-green-500 font-bold flex items-center justify-center'>
-                            Updated Events
+                            Updated Events. Going back to home page now...
                         </div>
                     )}
                 </form>

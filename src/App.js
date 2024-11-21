@@ -6,7 +6,7 @@ import { useAuth } from './components/authContext';
 function App() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // Check if the current route is the login or registration page

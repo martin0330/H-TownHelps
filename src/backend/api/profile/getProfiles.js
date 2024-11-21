@@ -1,4 +1,5 @@
 // backend/profile/getProfiles.js
+const express = require('express');
 const profileInfo = require('../../../schemas/profileInfo');
 const router = express.Router();
 

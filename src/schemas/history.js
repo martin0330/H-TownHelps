@@ -1,10 +1,14 @@
-// schemas/history.js
 const mongoose = require('mongoose');
 
 const historySchema = new mongoose.Schema(
     {
         email: { type: String, required: true, unique: true },
-        historyList: { type: [String], default: [] },
+        historyList: [
+            {
+                date: { type: Date, required: true }, // Date field
+                description: { type: String, required: true }, // String description
+            },
+        ],
         matches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Histories' }],
     },
     { timestamps: true }
