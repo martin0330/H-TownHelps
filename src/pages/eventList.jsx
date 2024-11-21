@@ -31,6 +31,7 @@ const EventList = () => {
                         (a, b) => new Date(a.date) - new Date(b.date)
                     );
                     setEvents(sortedEvents); // Set the sorted events
+                    console.log(sortedEvents);
                 } else {
                     setError(data.error); // Handle the error response
                 }

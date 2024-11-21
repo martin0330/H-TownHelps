@@ -7,6 +7,8 @@ const Events = require('../../../schemas/events');
 router.post('/', async (req, res) => {
     const { id, updatedEvent } = req.body;
 
+    console.log(updatedEvent);
+
     try {
         // Find the event by its ID and update it with the new data
         const event = await Events.findByIdAndUpdate(id, updatedEvent, {
