@@ -72,13 +72,15 @@ const EventList = () => {
                     }
                 );
                 const data = await response.json();
+
                 if (response.ok) {
-                    setProfiles(data);
+                    setProfiles(data); // Set profiles with the fetched data
                 } else {
-                    setError(data.error);
+                    setError(data.error); // Handle any errors
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Failed to fetch profiles:', err);
+                setError('Failed to fetch profiles.');
             }
         };
 
@@ -192,7 +194,9 @@ const EventList = () => {
                                                 (profile) =>
                                                     profile._id === personId
                                             );
-                                            return person.fullName;
+                                            return person
+                                                ? person.fullName
+                                                : 'Unknown'; // Safeguard against undefined profiles
                                         })
                                         .join(', ')}
                                 </p>

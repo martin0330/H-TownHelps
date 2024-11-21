@@ -58,7 +58,7 @@ function App() {
                             </div>
 
                             {/* Regular Nav Links */}
-                            <div className='hidden sm:flex space-x-6'>
+                            <div className='hidden sm:flex space-x-6 sm:items-center sm:justify-center'>
                                 <Link
                                     to='/userprofile'
                                     className='hover:underline'
@@ -88,7 +88,7 @@ function App() {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className='hover:underline bg-red-500 text-white px-4 py-1 rounded-md'
+                                    className='hover:underline bg-red-500 text-white px-2 py-1 rounded-md '
                                 >
                                     Log Out
                                 </button>
