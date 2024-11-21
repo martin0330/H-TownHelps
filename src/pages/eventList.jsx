@@ -90,7 +90,6 @@ const EventList = () => {
     // Delete event function
     const handleDelete = async (eventId) => {
         try {
-            console.log(`event id: ${eventId}`);
             const response = await fetch(
                 'http://localhost:5000/api/deleteEvent',
                 {
@@ -186,7 +185,16 @@ const EventList = () => {
                                     Skills: {event.skills.join(', ')}
                                 </p>
                                 <p className='text-gray-500 mt-2'>
-                                    People: {event.volunteers.join(', ')}
+                                    People:{' '}
+                                    {event.volunteers
+                                        ?.map((personId) => {
+                                            const person = profiles.find(
+                                                (profile) =>
+                                                    profile._id === personId
+                                            );
+                                            return person.fullName;
+                                        })
+                                        .join(', ')}
                                 </p>
                             </li>
                         ))}

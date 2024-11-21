@@ -10,6 +10,7 @@ const VolunteerMatchingForm = () => {
     const [profiles, setProfiles] = useState([]);
     const [adminAccess, setAdminAccess] = useState(false);
     const [selectedPeople, setSelectedPeople] = useState({});
+    const [updatedDiv, setUpdatedDiv] = useState(false);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -79,9 +80,19 @@ const VolunteerMatchingForm = () => {
             }
         };
 
+        const setEventPeople = () => {
+            for (const event of events) {
+                setSelectedPeople((prevState) => ({
+                    ...prevState,
+                    [event._id]: event.volunteers,
+                }));
+            }
+        };
+
         fetchEvents();
         fetchProfiles();
         getAdminAccess();
+        setEventPeople();
     }, [user]);
 
     const getAvailablePeople = (eventDate, eventSkill) => {
@@ -160,6 +171,8 @@ const VolunteerMatchingForm = () => {
         }
 
         console.log('Participants updated and notifications sent.');
+        setUpdatedDiv(true);
+        setTimeout(() => setUpdatedDiv(false), 3500);
     };
 
     const generatePDFReport = () => {
@@ -172,7 +185,7 @@ const VolunteerMatchingForm = () => {
                 Date: ${new Date(event.date).toLocaleDateString()}
                 Volunteers: ${event.volunteers.length}
             `;
-            doc.text(eventDetails, 10, 20 + (index * 30));
+            doc.text(eventDetails, 10, 20 + index * 30);
         });
 
         doc.save('volunteer_participation_report.pdf');
@@ -180,23 +193,25 @@ const VolunteerMatchingForm = () => {
 
     const generateCSVReport = () => {
         // Define the header of the CSV
-        let csvContent = "Event Name,Event Date,Number of Volunteers\n";
-    
+        let csvContent = 'Event Name,Event Date,Number of Volunteers\n';
+
         // Loop through each event and append the event details to the CSV string
         events.forEach((event) => {
-            const eventName = event.name || "";
-            const eventDate = new Date(event.date).toLocaleDateString() || "";
+            const eventName = event.name || '';
+            const eventDate = new Date(event.date).toLocaleDateString() || '';
             const numberOfVolunteers = event.volunteers.length || 0;
-    
+
             // Add event details to the CSV string, ensuring proper formatting with commas
             csvContent += `${eventName},${eventDate},${numberOfVolunteers}\n`;
         });
-    
+
         // Create a Blob with the CSV content and trigger the download
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
+        const blob = new Blob([csvContent], {
+            type: 'text/csv;charset=utf-8;',
+        });
+        const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = "volunteer_participation_report.csv";
+        link.download = 'volunteer_participation_report.csv';
         link.click();
     };
 
@@ -236,9 +251,21 @@ const VolunteerMatchingForm = () => {
                             key={event._id}
                             className='mb-6 p-6 border rounded-lg shadow-md bg-gray-100'
                         >
-                            <p className='text-gray-600'>
+                            <h3 className='text-xl font-semibold text-gray-700'>
+                                {event.name}
+                            </h3>
+                            <p className='text-gray-600 mt-2'>
+                                {event.description}
+                            </p>
+                            <p className='text-gray-500 mt-2'>
+                                Location: {event.location}
+                            </p>
+                            <p className='text-gray-500 mt-2'>
                                 Date:{' '}
                                 {new Date(event.date).toLocaleDateString()}
+                            </p>
+                            <p className='text-gray-500 mt-2'>
+                                Skills: {event.skills.join(', ')}
                             </p>
                             <label
                                 htmlFor={`people-dropdown-${event._id}`}
@@ -289,6 +316,11 @@ const VolunteerMatchingForm = () => {
                     >
                         Update Participants
                     </button>
+                    {updatedDiv && (
+                        <div className='text-xl text-green-500 font-bold flex items-center justify-center'>
+                            Updated Events
+                        </div>
+                    )}
                 </form>
             )}
         </div>
